@@ -3,62 +3,123 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>BhaktiSetu - Book Sacred Pujas Online</title>
-  <meta name="description" content="Book verified Vedic pujas from trusted temples with sankalp and booking support." />
+  <title>Pujan Sutra - Book Verified Pujas Online</title>
+  <meta name="description" content="Book verified Hindu pujas with sankalp, name, gotra, trusted pandits, and digital confirmation." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="./">BhaktiSetu</a>
+    <a class="brand" href="./" aria-label="Pujan Sutra home">
+      <span class="brandMark">ॐ</span>
+      <span><strong>Pujan Sutra</strong><small>।। पूजा से सिद्धि तक ।।</small></span>
+    </a>
     <nav>
+      <a href="#home">Home</a>
       <a href="#pujas">Pujas</a>
-      <a href="#trust">Trust</a>
+      <a href="#trust">How It Works</a>
       <a href="#book">Book</a>
     </nav>
   </header>
 
   <main>
-    <section class="hero">
-      <div>
+    <section id="home" class="heroShell">
+      <div class="heroCopy">
         <p class="eyebrow">Verified temple pujas</p>
-        <h1>BhaktiSetu</h1>
-        <p>Book sacred pujas with sankalp, trusted pandits, and digital confirmation.</p>
-        <div class="actions"><a class="primary" href="#pujas">Browse Pujas</a><a class="secondary" href="#book">Submit Request</a></div>
+        <h1>Book verified pujas from trusted pandits</h1>
+        <p class="heroLead">Authentic rituals performed with your name and gotra. Receive digital confirmation and booking updates from the same BhaktiSetu backend.</p>
+        <div class="actions">
+          <a class="primary" href="#book">Book Puja</a>
+          <a class="secondary" href="#pujas">Explore Pujas</a>
+        </div>
+      </div>
+      <div class="heroImage" aria-label="Shivling puja with diyas and flowers"></div>
+      <div class="heroTrust">
+        <div><span>✓</span><strong>Verified Pandits</strong><small>Experienced ritual support</small></div>
+        <div><span>ॐ</span><strong>Sankalp Details</strong><small>Name and gotra included</small></div>
+        <div><span>✦</span><strong>Digital Updates</strong><small>Request confirmation</small></div>
       </div>
     </section>
 
-    <section id="trust" class="trust">
-      <div>Verified pandit network</div>
-      <div>Sankalp in your name and gotra</div>
-      <div>Digital booking confirmation</div>
-      <div>Razorpay live payment coming soon</div>
+    <section class="statsBar" aria-label="Trust indicators">
+      <div>Secure booking request</div>
+      <div>10+ devotional services</div>
+      <div>Owner-reviewed dashboard</div>
+      <div>Razorpay live coming soon</div>
     </section>
 
     <section id="pujas" class="section">
-      <div class="sectionHead"><div><p class="eyebrow">Puja catalogue</p><h2>Choose a sacred ritual</h2></div><input id="search" placeholder="Search puja or temple" /></div>
+      <div class="sectionHead centered">
+        <p class="eyebrow">Explore our pujas</p>
+        <h2>Choose the ritual for your sankalp</h2>
+      </div>
+      <div class="catalogTools">
+        <input id="search" placeholder="Search pujas, temples or keywords..." />
+        <div class="chips" aria-label="Puja filters">
+          <button class="chip active" type="button" data-filter="all">All Pujas</button>
+          <button class="chip" type="button" data-filter="shiva">Shiva</button>
+          <button class="chip" type="button" data-filter="dosha">Dosh Nivaran</button>
+          <button class="chip" type="button" data-filter="grah">Grah Shanti</button>
+        </div>
+      </div>
       <div id="pujaGrid" class="grid"></div>
     </section>
 
-    <section id="book" class="section twoCol">
-      <div class="panel introPanel">
-        <p class="eyebrow">Booking request</p>
-        <h2 id="selectedPujaTitle">Select a puja</h2>
-        <p id="selectedPujaTemple" class="muted">Payment is not collected on website yet.</p>
-        <strong id="selectedPujaPrice"></strong>
+    <section id="trust" class="section howSection">
+      <div class="sectionHead centered">
+        <p class="eyebrow">How it works</p>
+        <h2>Simple, respectful, and privacy-safe</h2>
       </div>
-      <form id="bookingForm" class="panel form">
-        <label>Name<input name="name" required placeholder="Devotee full name" /></label>
-        <label>Gotra<input name="gotra" placeholder="e.g. Bhardwaj" /></label>
-        <label>Phone<input name="phone" placeholder="+91" /></label>
-        <label>Email<input name="email" placeholder="you@example.com" /></label>
-        <label>Preferred Date<input name="date" type="date" /></label>
-        <label>Purpose<textarea name="purpose" placeholder="Purpose of puja"></textarea></label>
-        <button class="primary" type="submit">Submit Request</button>
-        <p id="bookingMessage" class="message"></p>
-      </form>
+      <div class="steps">
+        <article><span>1</span><h3>Choose Puja</h3><p>Select from verified pujas and temple-based rituals.</p></article>
+        <article><span>2</span><h3>Share Sankalp</h3><p>Submit devotee name, gotra, date, and purpose.</p></article>
+        <article><span>3</span><h3>Admin Reviews</h3><p>Owner team receives full request in the admin panel.</p></article>
+        <article><span>4</span><h3>Safe Ops View</h3><p>Priest/ops team can receive only name and gotra when needed.</p></article>
+      </div>
+    </section>
+
+    <section id="book" class="section bookingSection">
+      <div class="sectionHead centered">
+        <p class="eyebrow">Book your puja</p>
+        <h2>Submit a booking request</h2>
+        <p class="subcopy">Payment is not collected on website yet. The request will still appear in the admin panel.</p>
+      </div>
+      <div class="bookingGrid">
+        <form id="bookingForm" class="panel form">
+          <h3>Devotee Details</h3>
+          <div class="formGrid">
+            <label>Devotee Name<input name="name" required placeholder="Enter devotee name" /></label>
+            <label>Gotra<input name="gotra" placeholder="Enter gotra" /></label>
+            <label>Phone Number<input name="phone" placeholder="+91" /></label>
+            <label>Email Address<input name="email" type="email" placeholder="you@example.com" /></label>
+            <label>Preferred Date<input name="date" type="date" /></label>
+            <label>Purpose of Puja<input name="purpose" placeholder="Health, peace, dosh nivaran..." /></label>
+          </div>
+          <div class="secureNote">Your details are used for sankalp and stored for booking support.</div>
+          <button class="primary wide" type="submit">Submit Booking Request</button>
+          <p id="bookingMessage" class="message"></p>
+        </form>
+
+        <aside class="panel summaryCard">
+          <h3>Puja Summary</h3>
+          <img id="selectedPujaImage" alt="Selected puja" />
+          <h4 id="selectedPujaTitle">Select a puja</h4>
+          <p id="selectedPujaTemple" class="muted">Choose a puja from the catalogue.</p>
+          <strong id="selectedPujaPrice"></strong>
+          <ul>
+            <li>Sankalp with name and gotra</li>
+            <li>Verified pandit coordination</li>
+            <li>Digital confirmation update</li>
+            <li>Admin tracking support</li>
+          </ul>
+        </aside>
+      </div>
     </section>
   </main>
 
+  <footer class="footer">Pujan Sutra by BhaktiSetu. Public website and mobile app use the same booking backend.</footer>
   <script type="module" src="./app.js"></script>
 </body>
 </html>
