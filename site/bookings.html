@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Bookings - Pujan Sutra</title>
+  <meta name="description" content="View your Pujan Sutra puja booking history and current booking status." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./"><span class="brandMark">ॐ</span><span><strong>Pujan Sutra</strong><small>।। पूजा से सिद्धि तक ।।</small></span></a>
+    <nav><a href="./">Home</a><a href="./#book">Book Puja</a><a id="authLink" href="./auth.html">Login</a></nav>
+  </header>
+  <main>
+    <section class="pageHero"><p class="eyebrow">Your account</p><h1>My Bookings</h1><p id="bookingsMessage" class="subcopy">Login to view your website and app booking history.</p></section>
+    <section class="section"><div id="bookingsList" class="bookingsList"></div></section>
+  </main>
+  <script type="module" src="./bookings.js"></script>
+</body>
+</html>
