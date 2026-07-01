@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>BhaktiSetu - Book Sacred Pujas Online</title>
-  <meta name="description" content="Book verified Vedic pujas from trusted temples with role-safe operations." />
+  <meta name="description" content="Book verified Vedic pujas from trusted temples with sankalp and booking support." />
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
@@ -13,7 +13,7 @@
     <nav>
       <a href="#pujas">Pujas</a>
       <a href="#trust">Trust</a>
-      <a href="#admin">Admin</a>
+      <a href="#book">Book</a>
     </nav>
   </header>
 
@@ -22,16 +22,16 @@
       <div>
         <p class="eyebrow">Verified temple pujas</p>
         <h1>BhaktiSetu</h1>
-        <p>Book sacred pujas with sankalp, digital confirmation, and role-safe operations support.</p>
-        <div class="actions"><a class="primary" href="#pujas">Browse Pujas</a><a class="secondary" href="#admin">Team Login</a></div>
+        <p>Book sacred pujas with sankalp, trusted pandits, and digital confirmation.</p>
+        <div class="actions"><a class="primary" href="#pujas">Browse Pujas</a><a class="secondary" href="#book">Submit Request</a></div>
       </div>
     </section>
 
     <section id="trust" class="trust">
-      <div>Owner-only full dashboard</div>
-      <div>Priest/Ops view: name & gotra only</div>
-      <div>Website request mode active</div>
-      <div>Razorpay live pending bank setup</div>
+      <div>Verified pandit network</div>
+      <div>Sankalp in your name and gotra</div>
+      <div>Digital booking confirmation</div>
+      <div>Razorpay live payment coming soon</div>
     </section>
 
     <section id="pujas" class="section">
@@ -56,23 +56,6 @@
         <button class="primary" type="submit">Submit Request</button>
         <p id="bookingMessage" class="message"></p>
       </form>
-    </section>
-
-    <section id="admin" class="section twoCol">
-      <form id="loginForm" class="panel form">
-        <p class="eyebrow">Secure dashboard</p>
-        <h2>Team Login</h2>
-        <label>Email<input name="email" required /></label>
-        <label>Password<input name="password" type="password" required /></label>
-        <button class="primary" type="submit">Login</button>
-        <p id="loginMessage" class="message error"></p>
-      </form>
-      <div id="dashboard" class="panel hidden">
-        <div class="dashHead"><div><p class="eyebrow" id="roleLabel">Dashboard</p><h2>Admin Panel</h2></div><button id="logoutBtn" class="secondary">Logout</button></div>
-        <div id="tabs" class="tabs"></div>
-        <div id="opsView" class="adminGrid"></div>
-        <div id="bookingsView" class="tableWrap hidden"><table><thead><tr><th>Order</th><th>Puja</th><th>User</th><th>Phone</th><th>Amount</th><th>Status</th></tr></thead><tbody id="bookingsBody"></tbody></table></div>
-      </div>
     </section>
   </main>
 
