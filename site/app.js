@@ -70,8 +70,8 @@ const fallbackPujas = [
   { id: '20', name: 'Pushkar Brahma Puja', temple: 'Brahma Temple, Pushkar, Rajasthan', price: 1099, category: 'Wealth', deity: 'Brahma', tag: 'Rare & Unique', duration: '75 mins', type: 'Vedic', description: 'Brahma Puja for education, career growth, and new beginnings.' },
 ];
 
-let pujas = fallbackPujas.map(normalizePuja);
-let selectedPuja = pujas[0];
+let pujas = [];
+let selectedPuja = null;
 let activeFilter = 'all';
 let currentUser = null;
 let lastBookingDraft = null;
@@ -136,7 +136,7 @@ async function loadManagedPujas() {
     console.log('Using fallback pujas:', error.message);
     pujas = fallbackPujas.map(normalizePuja);
   }
-  selectedPuja = pujas[0] || fallbackPujas.map(normalizePuja)[0];
+  selectedPuja = pujas[0] || normalizePuja(fallbackPujas[0]);
   renderCategories();
   renderPujas();
   updateSelectedPuja();
