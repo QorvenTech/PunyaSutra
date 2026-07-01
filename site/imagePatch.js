@@ -3,11 +3,12 @@ const PUJA_ASSETS = [
   { keys: ['ram lalla', 'ram mandir', 'ayodhya'], src: './assets/pujas/05-ram-mandir.svg' },
   { keys: ['kaal sarp', 'trimbakeshwar'], src: './assets/pujas/04-trimbakeshwar.svg' },
   { keys: ['navgraha', 'navagraha', 'mangal dosh', 'mangalnath'], src: './assets/pujas/04-trimbakeshwar.svg' },
-  { keys: ['kamakhya', 'baglamukhi', 'durga', 'vindhyachal'], src: './assets/pujas/02-kamakhya.svg' },
+  { keys: ['durga', 'vindhyachal', 'vaishno'], src: './assets/pujas/07-vaishno.jpg' },
+  { keys: ['kamakhya', 'baglamukhi'], src: './assets/pujas/02-kamakhya.svg' },
   { keys: ['kedarnath', 'maha rudra', 'rudrabhishek'], src: './assets/pujas/03-kedarnath.svg' },
   { keys: ['mahakal', 'mahakaleshwar', 'kashi', 'vishwanath', 'somnath', 'shiva'], src: './assets/pujas/01-mahakal.svg' },
   { keys: ['hanuman', 'sundarkand'], src: './assets/pujas/ganesha-generated.svg' },
-  { keys: ['laxmi', 'lakshmi', 'satyanarayan', 'vishnu', 'pitru', 'sudarshan', 'pushkar', 'brahma', 'vaishno'], src: './assets/pujas/02-kamakhya.svg' },
+  { keys: ['laxmi', 'lakshmi', 'satyanarayan', 'vishnu', 'pitru', 'sudarshan', 'pushkar', 'brahma'], src: './assets/pujas/02-kamakhya.svg' },
 ];
 
 const DEFAULT_APP_IMAGE = './assets/pujas/01-mahakal.svg';
