@@ -22,8 +22,8 @@
       <a href="#pujas">Pujas</a>
       <a href="#trust">How It Works</a>
       <a href="#book">Book</a>
-      <a href="./bookings.html">My Bookings</a>
-      <a id="accountLink" href="./auth.html">Login</a>
+      <a class="navPill" href="./bookings.html">My Bookings</a>
+      <a id="accountLink" class="navPill" href="./auth.html">Login</a>
     </nav>
   </header>
 
@@ -32,7 +32,7 @@
       <div class="heroCopy">
         <p class="eyebrow">Verified temple pujas</p>
         <h1>Book verified pujas from trusted pandits</h1>
-        <p class="heroLead">Authentic rituals performed with your name and gotra. Pay securely in Razorpay test mode and receive booking confirmation.</p>
+        <p class="heroLead">Authentic rituals performed with your name and gotra. Book online, pay securely, and receive clear confirmation and updates.</p>
         <div class="actions">
           <a class="primary" href="#book">Book Puja</a>
           <a class="secondary" href="#pujas">Explore Pujas</a>
@@ -40,20 +40,20 @@
       </div>
       <div class="heroImage" aria-label="Shivling puja with diyas and flowers"></div>
       <div class="heroTrust">
-        <div><span>✓</span><strong>Verified Pandits</strong><small>Experienced ritual support</small></div>
-        <div><span>ॐ</span><strong>Sankalp Details</strong><small>Name and gotra included</small></div>
-        <div><span>✦</span><strong>Digital Updates</strong><small>Request confirmation</small></div>
+        <div><span>✓</span><strong>Verified & Experienced Pandits</strong><small>Rituals coordinated with care</small></div>
+        <div><span>ॐ</span><strong>Sankalp With Name & Gotra</strong><small>Devotee details used respectfully</small></div>
+        <div><span>✦</span><strong>Digital Confirmation & Updates</strong><small>Booking history in My Bookings</small></div>
       </div>
     </section>
 
     <section class="statsBar" aria-label="Trust indicators">
-      <div>Razorpay test checkout active</div>
-      <div>Real puja catalogue from admin</div>
-      <div>Owner-reviewed dashboard</div>
+      <div>Secure Razorpay test checkout</div>
+      <div>Same app and website backend</div>
+      <div>Privacy-safe devotee handling</div>
       <div>Live payments after KYC</div>
     </section>
 
-    <section id="pujas" class="section">
+    <section id="pujas" class="section catalogueSection">
       <div class="sectionHead centered">
         <p class="eyebrow">Explore our pujas</p>
         <h2>Choose the ritual for your sankalp</h2>
@@ -71,13 +71,13 @@
     <section id="trust" class="section howSection">
       <div class="sectionHead centered">
         <p class="eyebrow">How it works</p>
-        <h2>Simple, respectful, and privacy-safe</h2>
+        <h2>Simple steps. Sacred experience. Clear updates.</h2>
       </div>
       <div class="steps">
-        <article><span>1</span><h3>Choose Puja</h3><p>Select from verified pujas and temple-based rituals.</p></article>
-        <article><span>2</span><h3>Share Sankalp</h3><p>Submit devotee name, gotra, date, and purpose.</p></article>
-        <article><span>3</span><h3>Pay Securely</h3><p>Complete Razorpay test checkout and get a confirmed booking.</p></article>
-        <article><span>4</span><h3>Track Updates</h3><p>Use My Bookings for booking history and current status.</p></article>
+        <article><span>1</span><h3>Choose Puja</h3><p>Explore verified pujas and select the ritual that matches your purpose.</p></article>
+        <article><span>2</span><h3>Share Sankalp Details</h3><p>Submit devotee name, gotra, date, phone, and purpose securely.</p></article>
+        <article><span>3</span><h3>Puja Performed By Pandit</h3><p>The team coordinates the ritual and tracks every important step.</p></article>
+        <article><span>4</span><h3>Receive Confirmation</h3><p>Check My Bookings for status, history, and digital confirmation.</p></article>
       </div>
     </section>
 
@@ -103,7 +103,7 @@
             <label>Preferred Date<input name="date" type="date" required /></label>
             <label>Purpose of Puja<input name="purpose" placeholder="Health, peace, dosh nivaran..." /></label>
           </div>
-          <div class="secureNote">After successful test payment, this booking is saved as Confirmed in the same admin panel.</div>
+          <div class="secureNote">Your sankalp details are used for the booking flow and saved to the same admin panel after successful test payment.</div>
           <button id="payButton" class="primary wide" type="submit">Pay & Confirm Booking</button>
           <button id="retryButton" class="secondary wide hidden" type="button">Retry Payment</button>
           <p id="bookingMessage" class="message"></p>
@@ -122,6 +122,22 @@
             <li>Admin tracking support</li>
           </ul>
         </aside>
+      </div>
+    </section>
+
+    <section id="about" class="section aboutSection">
+      <div class="aboutGrid">
+        <div class="aboutCopy">
+          <p class="eyebrow">About & trust</p>
+          <h2>Built for devotion, privacy, and transparent coordination</h2>
+          <p>Pujan Sutra connects devotees with verified puja coordination while keeping sensitive booking data limited to the owner-side team. Operational sharing can stay focused on the minimum details required for the ritual.</p>
+        </div>
+        <div class="trustCards">
+          <article><span>☼</span><strong>Verified Pandits</strong><p>Ritual coordination can be reviewed before launch.</p></article>
+          <article><span>⌂</span><strong>Temple Based Puja</strong><p>Catalogue and pricing are controlled from the admin system.</p></article>
+          <article><span>🔒</span><strong>Privacy & Security</strong><p>Name, gotra, booking, and payment data stay in the same Firebase backend.</p></article>
+          <article><span>✦</span><strong>Devotion & Integrity</strong><p>Clear flow from booking request to completion updates.</p></article>
+        </div>
       </div>
     </section>
 
