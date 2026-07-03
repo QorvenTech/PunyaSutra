@@ -28,6 +28,35 @@ const safeText = (value) => String(value || '').replace(/[&<>'"]/g, (char) => ({
 const validUrl = (value) => /^https:\/\//i.test(String(value || '').trim());
 const slug = (value) => String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
+const PUJA_IMAGE_ASSETS = [
+  { keys: ['kashi vishwanath'], src: './assets/pujas/kashi-vishwanath.svg' },
+  { keys: ['somnath'], src: './assets/pujas/somnath-temple.svg' },
+  { keys: ['mahakal', 'mahakaleshwar'], src: './assets/pujas/mahakal-abhishek.svg' },
+  { keys: ['kamakhya'], src: './assets/pujas/kamakhya-devi.svg' },
+  { keys: ['kaal sarp', 'trimbakeshwar'], src: './assets/pujas/kaal-sarp-trimbakeshwar.svg' },
+  { keys: ['ram lalla', 'ram mandir', 'ayodhya'], src: './assets/pujas/ram-mandir.svg' },
+  { keys: ['vaishno'], src: './assets/pujas/vaishno-devi.svg' },
+  { keys: ['durga saptashati', 'vindhyachal'], src: './assets/pujas/durga-saptashati.svg' },
+  { keys: ['baglamukhi'], src: './assets/pujas/baglamukhi.svg' },
+  { keys: ['ganesh', 'siddhivinayak'], src: './assets/pujas/ganesh-abhishek.svg' },
+  { keys: ['satyanarayan', 'iskcon', 'vrindavan'], src: './assets/pujas/satyanarayan-katha.svg' },
+  { keys: ['pitru', 'gaya', 'vishnupad'], src: './assets/pujas/pitru-shanti.svg' },
+  { keys: ['sudarshan', 'tirupati'], src: './assets/pujas/sudarshan-shanti.svg' },
+  { keys: ['hanuman abhishek', 'salassar'], src: './assets/pujas/hanuman-abhishek.svg' },
+  { keys: ['sundarkand'], src: './assets/pujas/sundarkand-path.svg' },
+  { keys: ['laxmi', 'lakshmi', 'kalighat'], src: './assets/pujas/laxmi-puja.svg' },
+  { keys: ['pushkar', 'brahma'], src: './assets/pujas/pushkar-brahma.svg' },
+  { keys: ['navgraha', 'navagraha'], src: './assets/pujas/navgraha-shanti.svg' },
+  { keys: ['mangal dosh', 'mangalnath'], src: './assets/pujas/mangal-dosh.svg' },
+  { keys: ['maha rudra', 'kedarnath', 'rudrabhishek'], src: './assets/pujas/03-kedarnath.svg' },
+];
+
+function localImageForPuja(puja = {}) {
+  const text = `${puja.name || ''} ${puja.temple || ''} ${puja.deity || ''} ${puja.category || ''}`.toLowerCase();
+  return PUJA_IMAGE_ASSETS.find((entry) => entry.keys.some((key) => text.includes(key)))?.src || '';
+}
+
+
 function pujaArt(title, subtitle, colors) {
   const [bg1, bg2, accent, deep] = colors;
   const svg = `
@@ -129,8 +158,9 @@ function shouldPreferGeneratedArt(puja = {}) {
 }
 
 function imageForPuja(puja) {
+  const localImage = localImageForPuja(puja);
+  if (localImage) return localImage;
   const image = String(puja.imageUrl || puja.image || '').trim();
-  if (shouldPreferGeneratedArt(puja)) return artForPuja(puja);
   return validUrl(image) ? image : artForPuja(puja);
 }
 
@@ -147,7 +177,7 @@ function normalizePuja(row) {
     tag: row.tag || row.type || 'Verified',
     description: row.description || 'Verified puja with sankalp, pandit coordination, and digital confirmation.',
   };
-  return { ...base, fallbackImageUrl: artForPuja(base), imageUrl: imageForPuja(base) };
+  return { ...base, fallbackImageUrl: localImageForPuja(base) || artForPuja(base), imageUrl: imageForPuja(base) };
 }
 
 function mergePujas(managedRows) {

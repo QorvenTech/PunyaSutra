@@ -1,17 +1,27 @@
 const PUJA_ASSETS = [
-  { keys: ['ganesh', 'siddhivinayak'], src: './assets/pujas/ganesha-generated.svg' },
-  { keys: ['ram lalla', 'ram mandir', 'ayodhya'], src: './assets/pujas/05-ram-mandir.svg' },
-  { keys: ['kaal sarp', 'trimbakeshwar'], src: './assets/pujas/04-trimbakeshwar.svg' },
-  { keys: ['navgraha', 'navagraha', 'mangal dosh', 'mangalnath'], src: './assets/pujas/04-trimbakeshwar.svg' },
-  { keys: ['durga', 'vindhyachal', 'vaishno'], src: './assets/pujas/07-vaishno.jpg' },
-  { keys: ['kamakhya', 'baglamukhi'], src: './assets/pujas/02-kamakhya.svg' },
-  { keys: ['kedarnath', 'maha rudra', 'rudrabhishek'], src: './assets/pujas/03-kedarnath.svg' },
-  { keys: ['mahakal', 'mahakaleshwar', 'kashi', 'vishwanath', 'somnath', 'shiva'], src: './assets/pujas/01-mahakal.svg' },
-  { keys: ['hanuman', 'sundarkand'], src: './assets/pujas/ganesha-generated.svg' },
-  { keys: ['laxmi', 'lakshmi', 'satyanarayan', 'vishnu', 'pitru', 'sudarshan', 'pushkar', 'brahma'], src: './assets/pujas/02-kamakhya.svg' },
+  { keys: ['kashi vishwanath'], src: './assets/pujas/kashi-vishwanath.svg' },
+  { keys: ['somnath'], src: './assets/pujas/somnath-temple.svg' },
+  { keys: ['mahakal', 'mahakaleshwar'], src: './assets/pujas/mahakal-abhishek.svg' },
+  { keys: ['kamakhya'], src: './assets/pujas/kamakhya-devi.svg' },
+  { keys: ['kaal sarp', 'trimbakeshwar'], src: './assets/pujas/kaal-sarp-trimbakeshwar.svg' },
+  { keys: ['ram lalla', 'ram mandir', 'ayodhya'], src: './assets/pujas/ram-mandir.svg' },
+  { keys: ['vaishno'], src: './assets/pujas/vaishno-devi.svg' },
+  { keys: ['durga saptashati', 'vindhyachal'], src: './assets/pujas/durga-saptashati.svg' },
+  { keys: ['baglamukhi'], src: './assets/pujas/baglamukhi.svg' },
+  { keys: ['ganesh', 'siddhivinayak'], src: './assets/pujas/ganesh-abhishek.svg' },
+  { keys: ['satyanarayan', 'iskcon', 'vrindavan'], src: './assets/pujas/satyanarayan-katha.svg' },
+  { keys: ['pitru', 'gaya', 'vishnupad'], src: './assets/pujas/pitru-shanti.svg' },
+  { keys: ['sudarshan', 'tirupati'], src: './assets/pujas/sudarshan-shanti.svg' },
+  { keys: ['hanuman abhishek', 'salassar'], src: './assets/pujas/hanuman-abhishek.svg' },
+  { keys: ['sundarkand'], src: './assets/pujas/sundarkand-path.svg' },
+  { keys: ['laxmi', 'lakshmi', 'kalighat'], src: './assets/pujas/laxmi-puja.svg' },
+  { keys: ['pushkar', 'brahma'], src: './assets/pujas/pushkar-brahma.svg' },
+  { keys: ['navgraha', 'navagraha'], src: './assets/pujas/navgraha-shanti.svg' },
+  { keys: ['mangal dosh', 'mangalnath'], src: './assets/pujas/mangal-dosh.svg' },
+  { keys: ['maha rudra', 'kedarnath', 'rudrabhishek'], src: './assets/pujas/03-kedarnath.svg' },
 ];
 
-const DEFAULT_APP_IMAGE = './assets/pujas/01-mahakal.svg';
+const DEFAULT_APP_IMAGE = './assets/pujas/mahakal-abhishek.svg';
 
 function imageForCardText(text = '') {
   const normalized = String(text).toLowerCase();
