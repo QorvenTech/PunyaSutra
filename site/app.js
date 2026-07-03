@@ -48,7 +48,7 @@ const PUJA_IMAGE_ASSETS = [
   { keys: ['pushkar', 'brahma'], src: './assets/pujas/pushkar-brahma.svg' },
   { keys: ['navgraha', 'navagraha'], src: './assets/pujas/navgraha-shanti.svg' },
   { keys: ['mangal dosh', 'mangalnath'], src: './assets/pujas/mangal-dosh.svg' },
-  { keys: ['maha rudra', 'kedarnath', 'rudrabhishek'], src: './assets/pujas/03-kedarnath.svg' },
+  { keys: ['maha rudra', 'kedarnath', 'rudrabhishek'], src: './assets/pujas/maha-rudrabhishek-kedarnath.webp' },
 ];
 
 function localImageForPuja(puja = {}) {

@@ -30,7 +30,7 @@ function imageForBooking(booking) {
     ['laxmi', './assets/pujas/laxmi-puja.svg'],
     ['navgraha', './assets/pujas/navgraha-shanti.svg'],
     ['mangal', './assets/pujas/mangal-dosh.svg'],
-    ['kedarnath', './assets/pujas/03-kedarnath.svg'],
+    ['kedarnath', './assets/pujas/maha-rudrabhishek-kedarnath.webp'],
   ];
   return booking.pujaImageUrl || booking.imageUrl || matches.find(([key]) => text.includes(key))?.[1] || './assets/pujas/mahakal-abhishek.svg';
 }
