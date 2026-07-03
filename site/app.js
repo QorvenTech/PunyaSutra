@@ -254,7 +254,11 @@ function renderPujas(items = getVisiblePujas()) {
     button.addEventListener('click', () => {
       selectedPuja = pujas.find((puja) => String(puja.id) === button.dataset.book) || pujas[0];
       updateSelectedPuja();
-      location.hash = '#book';
+      const bookingSection = document.getElementById('book');
+      if (bookingSection) {
+        history.replaceState(null, '', '#book');
+        bookingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     });
   });
 }

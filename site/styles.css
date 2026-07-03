@@ -116,7 +116,7 @@ nav a:hover{color:var(--red);border-bottom-color:#e6b170}
   background:linear-gradient(90deg,#8f1f0d,#bd3413);color:#fff8e8;border-radius:0 0 14px 14px;overflow:hidden;box-shadow:var(--shadow)
 }
 .statsBar div{padding:16px 18px;text-align:center;font-size:13px;font-weight:900;border-right:1px solid rgba(255,255,255,.25)}
-.section{padding:68px 5vw;position:relative}.catalogueSection{padding-top:74px}
+.section{padding:68px 5vw;position:relative}.catalogueSection{padding-top:74px}.bookingSection{scroll-margin-top:112px}
 .sectionHead{margin:0 auto 28px;max-width:760px}.sectionHead.centered{text-align:center}
 .sectionHead h2,.aboutCopy h2{margin:0;color:var(--maroon);font-size:clamp(31px,4vw,48px);line-height:1.1}
 .subcopy{margin:12px auto 0;max-width:650px;color:var(--muted);line-height:1.55}
