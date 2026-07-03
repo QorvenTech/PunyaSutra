@@ -18,7 +18,7 @@ function renderBookings(rows) {
         <span>Devotee: ${safeText(booking.userName || booking.devotee?.name || '')}</span>
         <span>Amount: Rs ${Number(booking.amount || 0).toLocaleString('en-IN')}</span>
       </div>
-      <a class="secondary" href="./confirmation.html?orderId=${encodeURIComponent(booking.orderId || booking.id)}">View Details</a>
+      <div class="bookingActions"><a class="secondary" href="./confirmation.html?orderId=${encodeURIComponent(booking.orderId || booking.id)}">View Details</a><a class="primary" href="./track.html?orderId=${encodeURIComponent(booking.orderId || booking.id)}">Track Puja</a></div>
     </article>
   `).join('') : '<p class="muted">No bookings found yet.</p>';
 }

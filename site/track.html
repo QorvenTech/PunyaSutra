@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Track Your Puja - Pujan Sutra</title>
+  <meta name="description" content="Track your Pujan Sutra puja booking status using your booking reference ID." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./"><span class="brandMark">OM</span><span><strong>Pujan Sutra</strong><small>Puja se Siddhi tak</small></span></a>
+    <nav><a href="./">Home</a><a href="./#pujas">Pujas</a><a href="./how-it-works.html">How It Works</a><a href="./about.html">About Us</a><a href="./track.html">Track Puja</a><a class="navPill" href="./bookings.html">My Bookings</a></nav>
+  </header>
+  <main>
+    <section class="pageHero"><p class="eyebrow">Tracking & updates</p><h1>Track Your Puja</h1><p class="subcopy">Stay updated with every step of your sacred journey.</p></section>
+    <section class="section compactSection">
+      <form id="trackForm" class="trackSearch panel"><label>Booking Reference ID<input id="orderInput" placeholder="Example: WEB12345678" /></label><button class="primary" type="submit">Track Request</button><p id="trackMessage" class="message"></p></form>
+      <div id="trackResult" class="trackLayout hidden"></div>
+    </section>
+  </main>
+  <footer class="footer">Tracking updates come from the same booking record used by the admin panel.</footer>
+  <script type="module" src="./track.js"></script>
+</body>
+</html>

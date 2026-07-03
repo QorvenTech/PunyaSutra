@@ -273,7 +273,7 @@ function updateAuthUi(user) {
   $('accountLink').href = user ? '#' : './auth.html';
   $('authStateText').textContent = user
     ? `Logged in as ${user.email}. Razorpay is running in TEST mode and will not charge real money.`
-    : 'Login or signup with email to continue. Razorpay is running in TEST mode and will not charge real money.';
+    : 'Login with email or Google to continue. Razorpay is running in TEST mode and will not charge real money.';
   $('inlineAuth').classList.toggle('hidden', Boolean(user));
   const emailInput = document.querySelector('[name="email"]');
   if (user?.email && emailInput && !emailInput.value) emailInput.value = user.email;
@@ -355,6 +355,7 @@ async function saveConfirmedBooking(draft, paymentResponse = {}) {
     pujaId: selectedPuja.id,
     pujaName: selectedPuja.name,
     temple: selectedPuja.temple,
+    pujaImageUrl: imageForPuja(selectedPuja),
     date: draft.date,
     time: DEFAULT_PUJA_TIME,
     pkg: 'Website Booking',

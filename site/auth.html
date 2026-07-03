@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Login or Signup - Pujan Sutra</title>
-  <meta name="description" content="Login or create your Pujan Sutra account to book pujas and view your booking history." />
+  <meta name="description" content="Login or create your Pujan Sutra account with email or Google to book pujas and view your booking history." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
@@ -12,13 +12,15 @@
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="./"><span class="brandMark">ॐ</span><span><strong>Pujan Sutra</strong><small>।। पूजा से सिद्धि तक ।।</small></span></a>
-    <nav><a href="./">Home</a><a href="./bookings.html">My Bookings</a></nav>
+    <a class="brand" href="./"><span class="brandMark">OM</span><span><strong>Pujan Sutra</strong><small>Puja se Siddhi tak</small></span></a>
+    <nav><a href="./">Home</a><a href="./how-it-works.html">How It Works</a><a href="./track.html">Track Puja</a><a href="./bookings.html">My Bookings</a></nav>
   </header>
   <main class="authShell">
     <section class="panel authPanel form">
       <p class="eyebrow">Account access</p>
-      <h2>Email Login</h2>
+      <h2>Email or Google Login</h2>
+      <button id="googleButton" class="googleButton wide" type="button"><span>G</span> Continue with Google</button>
+      <div class="divider"><span>or continue with email</span></div>
       <div class="authSwitch"><button id="loginTab" class="active" type="button">Login</button><button id="signupTab" type="button">Signup</button></div>
       <form id="authForm" class="form">
         <label id="nameLabel" class="hidden">Name<input name="name" placeholder="Your full name" /></label>

@@ -3,29 +3,45 @@ import { db } from './firebaseClient.js';
 
 const $ = (id) => document.getElementById(id);
 const safeText = (value) => String(value || '').replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+const dateText = (value) => {
+  if (!value) return '-';
+  const date = value.toDate ? value.toDate() : new Date(value);
+  return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+};
+
+function imageForBooking(booking) {
+  const text = `${booking.pujaName || ''} ${booking.temple || ''}`.toLowerCase();
+  const matches = [
+    ['kashi', './assets/pujas/kashi-vishwanath.svg'], ['somnath', './assets/pujas/somnath-temple.svg'], ['mahakal', './assets/pujas/mahakal-abhishek.svg'], ['kamakhya', './assets/pujas/kamakhya-devi.svg'], ['trimbakeshwar', './assets/pujas/kaal-sarp-trimbakeshwar.svg'], ['ram', './assets/pujas/ram-mandir.svg'], ['vaishno', './assets/pujas/vaishno-devi.svg'], ['durga', './assets/pujas/durga-saptashati.svg'], ['baglamukhi', './assets/pujas/baglamukhi.svg'], ['ganesh', './assets/pujas/ganesh-abhishek.svg'], ['satyanarayan', './assets/pujas/satyanarayan-katha.svg'], ['pitru', './assets/pujas/pitru-shanti.svg'], ['hanuman', './assets/pujas/hanuman-abhishek.svg'], ['sundarkand', './assets/pujas/sundarkand-path.svg'], ['laxmi', './assets/pujas/laxmi-puja.svg'], ['navgraha', './assets/pujas/navgraha-shanti.svg'], ['mangal', './assets/pujas/mangal-dosh.svg'], ['kedarnath', './assets/pujas/03-kedarnath.svg'],
+  ];
+  return booking.pujaImageUrl || booking.imageUrl || matches.find(([key]) => text.includes(key))?.[1] || './assets/pujas/mahakal-abhishek.svg';
+}
 
 function render(booking) {
-  $('confirmMessage').textContent = `Order ${booking.orderId || booking.id} is confirmed.`;
+  const orderId = booking.orderId || booking.id;
+  $('confirmMessage').textContent = `We have received order ${orderId} and will perform your puja with devotion.`;
   $('confirmationPanel').innerHTML = `
-    <span class="badge">${safeText(booking.status || 'Confirmed')}</span>
-    <div class="confirmGrid">
-      <div class="confirmItem"><span>Order ID</span><strong>${safeText(booking.orderId || booking.id)}</strong></div>
-      <div class="confirmItem"><span>Payment ID</span><strong>${safeText(booking.razorpayPaymentId || booking.paymentId || 'Test payment')}</strong></div>
-      <div class="confirmItem"><span>Puja</span><strong>${safeText(booking.pujaName || '')}</strong></div>
-      <div class="confirmItem"><span>Temple</span><strong>${safeText(booking.temple || '')}</strong></div>
-      <div class="confirmItem"><span>Date</span><strong>${safeText(booking.date || 'To be scheduled')}</strong></div>
-      <div class="confirmItem"><span>Devotee</span><strong>${safeText(booking.userName || booking.devotee?.name || '')}</strong></div>
-      <div class="confirmItem"><span>Gotra</span><strong>${safeText(booking.devotee?.gotra || 'Not provided')}</strong></div>
-      <div class="confirmItem"><span>Amount Paid</span><strong>Rs ${Number(booking.amount || 0).toLocaleString('en-IN')}</strong></div>
-    </div>
-    <h3>What Happens Next</h3>
-    <div class="nextSteps">
-      <div><strong>1. Puja performed</strong><p class="muted">Team coordinates the ritual with pandit support.</p></div>
-      <div><strong>2. Video sent</strong><p class="muted">Confirmation/video update is shared when available.</p></div>
-      <div><strong>3. Prasad dispatched</strong><p class="muted">Delivery details are updated after dispatch.</p></div>
-      <div><strong>4. Certificate emailed</strong><p class="muted">Certificate/report is emailed after completion.</p></div>
-    </div>
-    <div class="actions"><a class="primary" href="./bookings.html">View My Bookings</a><a class="secondary" href="./">Book Another Puja</a></div>
+    <section class="panel confirmationStatus">
+      <div class="successSeal"><span>OK</span></div>
+      <p class="eyebrow">Booking Reference ID</p>
+      <h2>${safeText(orderId)}</h2>
+      <p class="muted">${safeText(dateText(booking.createdAt))}</p>
+      <p>A confirmation email and status updates will be connected to your registered account.</p>
+      <div class="actions stackedActions"><a class="primary wide" href="./track.html?orderId=${encodeURIComponent(orderId)}">Track Request</a><a class="secondary wide" href="./#pujas">Browse More Pujas</a></div>
+    </section>
+    <section class="panel confirmationDetails">
+      <div class="confirmationColumns">
+        <article>
+          <h3>Puja Summary</h3>
+          <div class="summaryMini"><img src="${safeText(imageForBooking(booking))}" alt="${safeText(booking.pujaName || 'Puja booking')}"><div><strong>${safeText(booking.pujaName || 'Puja Booking')}</strong><span>${safeText(booking.temple || 'Verified Temple')}</span><b>Rs ${Number(booking.amount || 0).toLocaleString('en-IN')}</b><small>Inclusive of all taxes</small></div></div>
+        </article>
+        <article>
+          <h3>Devotee Details</h3>
+          <div class="detailRows"><span>Name</span><strong>${safeText(booking.userName || booking.devotee?.name || '')}</strong><span>Gotra</span><strong>${safeText(booking.devotee?.gotra || 'Not provided')}</strong><span>Phone</span><strong>${safeText(booking.userPhone || booking.devotee?.phone || '')}</strong><span>Email</span><strong>${safeText(booking.userEmail || booking.devotee?.email || '')}</strong></div>
+        </article>
+      </div>
+      <div class="whatsNext"><h3>What's Next?</h3><ul><li>Our team will verify your details.</li><li>Pandit will be assigned for your puja.</li><li>We will notify you before the puja begins.</li><li>Receive updates, photos, and video after completion.</li></ul></div>
+    </section>
   `;
 }
 
