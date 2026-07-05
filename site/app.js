@@ -32,6 +32,7 @@ const validImagePath = (value) => validUrl(value) || /^\.\/assets\/pujas\/[a-z0-
 const slug = (value) => String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
 const PUJA_IMAGE_ASSETS = [
+  { keys: ['rath yatra', 'jagannath', 'puri'], src: RATH_YATRA_PUJA_IMAGE },
   { keys: ['kashi vishwanath'], src: './assets/pujas/kashi-vishwanath.svg' },
   { keys: ['somnath'], src: './assets/pujas/somnath-temple.svg' },
   { keys: ['mahakal', 'mahakaleshwar'], src: './assets/pujas/mahakal-abhishek.svg' },
@@ -233,10 +234,15 @@ function renderPromo() {
     <div class="promoCopy">
       <h3>&#128725; ${safeText(promo.label)}</h3>
       <p>${safeText(promo.text)}</p>
-      <p id="rathyatra-countdown" class="rathyatraCountdown">Loading...</p>
+      <div class="promoActions">
+        <p id="rathyatra-countdown" class="rathyatraCountdown">Loading...</p>
+        <button id="rathyatra-jump" class="promoJump" type="button" aria-label="Go to Rath Yatra Puja">&#8594;</button>
+      </div>
     </div>`;
   updateRathYatraCountdown();
   setInterval(updateRathYatraCountdown, 1000);
+  const jumpButton = $('rathyatra-jump');
+  if (jumpButton) jumpButton.addEventListener('click', scrollToRathYatraPuja);
 }
 
 function renderCategories() {
@@ -264,9 +270,17 @@ function getVisiblePujas() {
   });
 }
 
+function scrollToRathYatraPuja() {
+  const rathCard = document.querySelector('[data-puja-id="21"]') || Array.from(document.querySelectorAll('.card')).find((card) => card.textContent.includes('Rath Yatra Puja'));
+  if (rathCard) {
+    rathCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    rathCard.classList.add('focusPulse');
+    setTimeout(() => rathCard.classList.remove('focusPulse'), 1400);
+  }
+}
 function renderPujas(items = getVisiblePujas()) {
   $('pujaGrid').innerHTML = items.length ? items.map((puja) => `
-    <article class="card">
+    <article class="card" data-puja-id="${safeText(puja.id)}">
       <img src="${safeText(imageForPuja(puja))}" alt="${safeText(puja.name)}" loading="lazy" onerror="this.onerror=null;this.src='${safeText(puja.fallbackImageUrl || artForPuja(puja))}';">
       <div class="cardBody">
         <div class="tagRow"><span>${safeText(puja.tag)}</span><strong>Rs ${Number(puja.price || 0).toLocaleString('en-IN')}</strong></div>

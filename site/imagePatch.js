@@ -1,4 +1,5 @@
 const PUJA_ASSETS = [
+  { keys: ['rath yatra', 'jagannath', 'puri'], src: './assets/pujas/rath-yatra-puja.jpg' },
   { keys: ['kashi vishwanath'], src: './assets/pujas/kashi-vishwanath.svg' },
   { keys: ['somnath'], src: './assets/pujas/somnath-temple.svg' },
   { keys: ['mahakal', 'mahakaleshwar'], src: './assets/pujas/mahakal-abhishek.svg' },
