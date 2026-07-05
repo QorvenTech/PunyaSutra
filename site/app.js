@@ -5,7 +5,7 @@ import { addDoc, collection, doc, getDocs, getFirestore, initializeFirestore, qu
 const RAZORPAY_KEY_ID = 'rzp_test_SymVGhugpvGj9D';
 const DEFAULT_PUJA_TIME = '9:00 AM';
 const RATH_YATRA_DATE = new Date('2026-07-16T05:33:00+05:30');
-const RATH_YATRA_PUJA_IMAGE = './assets/pujas/rath-yatra-puja.webp';
+const RATH_YATRA_PUJA_IMAGE = './assets/pujas/rath-yatra-puja.jpg';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBKLoZ1QkuM2TGzwsaOp-GVQ5CKlCS3lu8',
