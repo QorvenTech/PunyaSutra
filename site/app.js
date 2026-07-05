@@ -4,6 +4,8 @@ import { addDoc, collection, doc, getDocs, getFirestore, initializeFirestore, qu
 
 const RAZORPAY_KEY_ID = 'rzp_test_SymVGhugpvGj9D';
 const DEFAULT_PUJA_TIME = '9:00 AM';
+const RATH_YATRA_DATE = new Date('2026-07-16T05:33:00+05:30');
+const RATH_YATRA_PUJA_IMAGE = './assets/pujas/rath-yatra-puja.webp';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBKLoZ1QkuM2TGzwsaOp-GVQ5CKlCS3lu8',
@@ -26,6 +28,7 @@ const auth = getAuth(app);
 const $ = (id) => document.getElementById(id);
 const safeText = (value) => String(value || '').replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
 const validUrl = (value) => /^https:\/\//i.test(String(value || '').trim());
+const validImagePath = (value) => validUrl(value) || /^\.\/assets\/pujas\/[a-z0-9._-]+$/i.test(String(value || '').trim());
 const slug = (value) => String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
 const PUJA_IMAGE_ASSETS = [
@@ -117,6 +120,7 @@ const fallbackPujas = [
   { id: '18', name: 'Sundarkand Path', temple: 'Ram Janmabhoomi, Ayodhya', price: 699, category: 'Health', deity: 'Hanuman', tag: 'Tuesday Special', duration: '90 mins', type: 'Vedic', description: 'Sundarkand Path for protection, peace, and wish fulfillment.' },
   { id: '19', name: 'Somnath Abhishek', temple: 'Somnath Temple, Gujarat', price: 1599, category: 'Health', deity: 'Shiva', tag: 'Jyotirlinga', duration: '90 mins', type: 'Vedic', description: 'Rudrabhishek at Somnath for longevity, health, and spiritual growth.' },
   { id: '20', name: 'Pushkar Brahma Puja', temple: 'Brahma Temple, Pushkar, Rajasthan', price: 1099, category: 'Wealth', deity: 'Brahma', tag: 'Rare & Unique', duration: '75 mins', type: 'Vedic', description: 'Brahma Puja for education, career growth, and new beginnings.' },
+  { id: '21', name: 'Rath Yatra Puja', temple: 'Jagannath Temple, Puri, Odisha', price: 1100, category: 'Wealth', deity: 'Jagannath', tag: 'Limited Time', duration: '75 mins', type: 'Vedic', imageUrl: RATH_YATRA_PUJA_IMAGE, description: 'Special Rath Yatra sankalp puja for devotion, blessings, family prosperity, and auspicious new beginnings.' },
 ];
 
 let pujas = [];
@@ -142,7 +146,7 @@ function artForPuja(puja = {}) {
   const key = text.includes('ganesh') || text.includes('siddhivinayak') ? 'ganesh'
     : text.includes('hanuman') || text.includes('sundarkand') || text.includes('salassar') ? 'hanuman'
     : text.includes('durga') || text.includes('kamakhya') || text.includes('vaishno') || text.includes('baglamukhi') || text.includes('vindhyachal') ? 'durga'
-    : text.includes('vishnu') || text.includes('satyanarayan') || text.includes('tirupati') || text.includes('gaya') ? 'vishnu'
+    : text.includes('vishnu') || text.includes('jagannath') || text.includes('rath yatra') || text.includes('satyanarayan') || text.includes('tirupati') || text.includes('gaya') ? 'vishnu'
     : text.includes('krishna') || text.includes('iskcon') || text.includes('vrindavan') ? 'krishna'
     : text.includes('lakshmi') || text.includes('laxmi') ? 'lakshmi'
     : text.includes('navgraha') || text.includes('navagraha') || text.includes('grah') || text.includes('mangal') ? 'navgraha'
@@ -161,7 +165,7 @@ function imageForPuja(puja) {
   const localImage = localImageForPuja(puja);
   if (localImage) return localImage;
   const image = String(puja.imageUrl || puja.image || '').trim();
-  return validUrl(image) ? image : artForPuja(puja);
+  return validImagePath(image) ? image : artForPuja(puja);
 }
 
 function normalizePuja(row) {
@@ -204,11 +208,35 @@ async function loadManagedPujas() {
   updateSelectedPuja();
 }
 
+function updateRathYatraCountdown() {
+  const countdown = $('rathyatra-countdown');
+  if (!countdown) return;
+
+  const diff = RATH_YATRA_DATE - new Date();
+  if (diff <= 0) {
+    countdown.textContent = "\u{1F389} Rath Yatra is here! Book today's special puja now.";
+    return;
+  }
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+  const seconds = Math.floor((diff / 1000) % 60);
+  countdown.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s left for Rath Yatra`;
+}
+
 function renderPromo() {
   const promo = { enabled: true, label: 'Rath Yatra Special', text: 'Book selected pujas with sankalp details and test checkout confirmation.' };
   if (!promo.enabled) return;
   $('promoStrip').classList.remove('hidden');
-  $('promoStrip').innerHTML = `<strong>${safeText(promo.label)}</strong><span>${safeText(promo.text)}</span>`;
+  $('promoStrip').innerHTML = `
+    <div class="promoCopy">
+      <h3>&#128725; ${safeText(promo.label)}</h3>
+      <p>${safeText(promo.text)}</p>
+      <p id="rathyatra-countdown" class="rathyatraCountdown">Loading...</p>
+    </div>`;
+  updateRathYatraCountdown();
+  setInterval(updateRathYatraCountdown, 1000);
 }
 
 function renderCategories() {
