@@ -71,6 +71,10 @@ nav a{white-space:nowrap;padding:9px 0;border-bottom:2px solid transparent}
 nav a:hover{color:var(--red);border-bottom-color:#e6b170}
 .navPill{border:1px solid #deb27b!important;border-radius:8px;padding:10px 13px!important;background:#fffaf2;color:#6f3018}
 .navPill:hover{background:#fff1dc;border-color:#c97130!important}
+.langControls{display:inline-flex;align-items:center;gap:3px;padding:3px;border:1px solid #deb27b;border-radius:8px;background:#fffaf2;white-space:nowrap}
+.langToggle{border:0;border-radius:6px;background:transparent;color:#6f3018;padding:7px 9px;font-size:12px;font-weight:950;line-height:1;cursor:pointer}
+.langToggle.active{background:#a72a12;color:#fff}
+.langToggle:focus-visible{outline:2px solid #c8913d;outline-offset:2px}
 .heroShell{
   position:relative;
   margin:28px auto 0;

@@ -8,13 +8,14 @@ const params = new URLSearchParams(location.search);
 const next = params.get('next');
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
+const tx = (source) => window.PunyaI18n?.t(source) || source;
 
 function setMode(nextMode) {
   mode = nextMode;
   $('loginTab').classList.toggle('active', mode === 'login');
   $('signupTab').classList.toggle('active', mode === 'signup');
   $('nameLabel').classList.toggle('hidden', mode !== 'signup');
-  $('authButton').textContent = mode === 'signup' ? 'Create Account' : 'Login';
+  $('authButton').textContent = tx(mode === 'signup' ? 'Create Account' : 'Login');
   $('authMessage').classList.remove('error');
   $('authMessage').textContent = '';
 }
@@ -39,21 +40,21 @@ async function saveUserProfile(user, extra = {}) {
 function showAuthError(error) {
   $('authMessage').classList.add('error');
   if (error?.code === 'auth/unauthorized-domain') {
-    $('authMessage').textContent = 'Google login needs this website domain added in Firebase Auth authorized domains.';
+    $('authMessage').textContent = tx('Google login needs this website domain added in Firebase Auth authorized domains.');
     return;
   }
   if (error?.code === 'auth/popup-closed-by-user') {
-    $('authMessage').textContent = 'Google login was closed before completion.';
+    $('authMessage').textContent = tx('Google login was closed before completion.');
     return;
   }
-  $('authMessage').textContent = error.message || 'Could not continue.';
+  $('authMessage').textContent = error.message || tx('Could not continue.');
 }
 
 $('loginTab').addEventListener('click', () => setMode('login'));
 $('signupTab').addEventListener('click', () => setMode('signup'));
 $('googleButton').addEventListener('click', async () => {
   $('authMessage').classList.remove('error');
-  $('authMessage').textContent = 'Opening Google login...';
+  $('authMessage').textContent = tx('Opening Google login...');
   try {
     const result = await signInWithPopup(auth, googleProvider);
     await saveUserProfile(result.user, { authProvider: 'google' });
@@ -65,7 +66,7 @@ $('googleButton').addEventListener('click', async () => {
 $('authForm').addEventListener('submit', async (event) => {
   event.preventDefault();
   $('authMessage').classList.remove('error');
-  $('authMessage').textContent = 'Please wait...';
+  $('authMessage').textContent = tx('Please wait...');
   const form = new FormData(event.currentTarget);
   const email = String(form.get('email') || '').trim();
   const password = String(form.get('password') || '');
@@ -88,3 +89,5 @@ $('authForm').addEventListener('submit', async (event) => {
 onAuthStateChanged(auth, (user) => {
   if (user && !params.get('stay')) goNext();
 });
+
+window.addEventListener('punyasutra:langchange', () => setMode(mode));

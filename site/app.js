@@ -31,6 +31,9 @@ const safeText = (value) => String(value || '').replace(/[&<>'"]/g, (char) => ({
 const validUrl = (value) => /^https:\/\//i.test(String(value || '').trim());
 const validImagePath = (value) => validUrl(value) || /^\.\/assets\/pujas\/[a-z0-9._-]+$/i.test(String(value || '').trim());
 const slug = (value) => String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+const tx = (source) => window.PunyaI18n?.t(source) || source;
+const fmt = (source, values) => window.PunyaI18n?.format(source, values) || source.replace(/\{(\w+)\}/g, (match, key) => values?.[key] ?? match);
+const applyI18n = () => window.PunyaI18n?.apply(document);
 
 const PUJA_IMAGE_ASSETS = [
   { keys: ['rath yatra', 'jagannath', 'puri'], src: RATH_YATRA_PUJA_IMAGE },
@@ -244,6 +247,7 @@ function renderPromo() {
   setInterval(updateRathYatraCountdown, 1000);
   const jumpButton = $('rathyatra-jump');
   if (jumpButton) jumpButton.addEventListener('click', scrollToRathYatraPuja);
+  applyI18n();
 }
 
 function renderCategories() {
@@ -260,6 +264,7 @@ function renderCategories() {
       renderPujas();
     });
   });
+  applyI18n();
 }
 
 function getVisiblePujas() {
@@ -304,11 +309,12 @@ function renderPujas(items = getVisiblePujas()) {
       }
     });
   });
+  applyI18n();
 }
 
 function updateSelectedPuja() {
-  $('selectedPujaTitle').textContent = selectedPuja.name;
-  $('selectedPujaTemple').textContent = selectedPuja.temple;
+  $('selectedPujaTitle').textContent = tx(selectedPuja.name);
+  $('selectedPujaTemple').textContent = tx(selectedPuja.temple);
   $('selectedPujaPrice').textContent = `Rs ${Number(selectedPuja.price || 0).toLocaleString('en-IN')}`;
   $('selectedPujaImage').src = imageForPuja(selectedPuja);
   $('selectedPujaImage').onerror = () => { $('selectedPujaImage').src = selectedPuja.fallbackImageUrl || artForPuja(selectedPuja); };
@@ -316,11 +322,11 @@ function updateSelectedPuja() {
 
 function updateAuthUi(user) {
   currentUser = user;
-  $('accountLink').textContent = user ? 'Logout' : 'Login';
+  $('accountLink').textContent = tx(user ? 'Logout' : 'Login');
   $('accountLink').href = user ? '#' : './auth.html';
   $('authStateText').textContent = user
-    ? `Logged in as ${user.email}. Online payments are being activated; your request will be saved for team follow-up.`
-    : 'Login with email or Google to continue. Online payments are being activated for public launch.';
+    ? fmt('Logged in as {email}. Online payments are being activated; your request will be saved for team follow-up.', { email: user.email })
+    : tx('Login with email or Google to continue. Online payments are being activated for public launch.');
   $('inlineAuth').classList.toggle('hidden', Boolean(user));
   const emailInput = document.querySelector('[name="email"]');
   if (user?.email && emailInput && !emailInput.value) emailInput.value = user.email;
@@ -361,7 +367,7 @@ function bookingFromForm(form) {
 
 function openRazorpay(draft) {
   if (!window.Razorpay) {
-    $('bookingMessage').textContent = 'Razorpay could not load. Please refresh and try again.';
+    $('bookingMessage').textContent = tx('Razorpay could not load. Please refresh and try again.');
     $('retryButton').classList.remove('hidden');
     return;
   }
@@ -383,10 +389,10 @@ function openRazorpay(draft) {
       },
     },
     handler: async (response) => saveConfirmedBooking(draft, response),
-    modal: { ondismiss: () => showPaymentRetry('Payment window closed. You can retry payment.') },
+    modal: { ondismiss: () => showPaymentRetry(tx('Payment window closed. You can retry payment.')) },
   };
   const checkout = new window.Razorpay(options);
-  checkout.on('payment.failed', (response) => showPaymentRetry(response?.error?.description || 'Payment failed. Please retry.'));
+  checkout.on('payment.failed', (response) => showPaymentRetry(response?.error?.description || tx('Payment failed. Please retry.')));
   checkout.open();
 }
 
@@ -398,7 +404,7 @@ function showPaymentRetry(message) {
 
 async function saveConfirmedBooking(draft, paymentResponse = {}) {
   $('bookingMessage').classList.remove('error');
-  $('bookingMessage').textContent = 'Payment successful. Saving confirmed booking...';
+  $('bookingMessage').textContent = tx('Payment successful. Saving confirmed booking...');
   const now = new Date().toISOString();
   const amount = Number(selectedPuja.price || 0);
   const payload = {
@@ -450,7 +456,7 @@ async function saveConfirmedBooking(draft, paymentResponse = {}) {
 
 async function savePendingBookingRequest(draft) {
   $('bookingMessage').classList.remove('error');
-  $('bookingMessage').textContent = 'Saving your booking request...';
+  $('bookingMessage').textContent = tx('Saving your booking request...');
   const now = new Date().toISOString();
   const amount = Number(selectedPuja.price || 0);
   const payload = {
@@ -505,14 +511,14 @@ async function submitBooking(event) {
   $('bookingMessage').classList.remove('error');
   $('retryButton').classList.add('hidden');
   if (!currentUser) {
-    $('bookingMessage').textContent = 'Please login or signup first.';
+    $('bookingMessage').textContent = tx('Please login or signup first.');
     $('bookingMessage').classList.add('error');
     window.location.href = './auth.html?next=book';
     return;
   }
   const draft = bookingFromForm(new FormData(event.currentTarget));
   if (!draft.name || !draft.phone || !draft.email || !draft.date) {
-    $('bookingMessage').textContent = 'Please fill name, phone, email, and preferred date.';
+    $('bookingMessage').textContent = tx('Please fill name, phone, email, and preferred date.');
     $('bookingMessage').classList.add('error');
     return;
   }
@@ -531,6 +537,14 @@ $('accountLink').addEventListener('click', async (event) => {
   if (!currentUser) return;
   event.preventDefault();
   await signOut(auth);
+});
+
+window.addEventListener('punyasutra:langchange', () => {
+  renderCategories();
+  renderPujas();
+  if (selectedPuja) updateSelectedPuja();
+  updateAuthUi(currentUser);
+  applyI18n();
 });
 
 onAuthStateChanged(auth, updateAuthUi);

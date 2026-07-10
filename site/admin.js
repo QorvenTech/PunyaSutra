@@ -25,6 +25,10 @@ const LIMITED_TEAM_ROLES = ['operations', 'ops', 'priest', 'pandit', 'team'];
 let currentAccess = { canOpenAdmin: false, canManageAllData: false };
 
 const $ = (id) => document.getElementById(id);
+const tx = (source) => window.PunyaI18n?.t(source) || source;
+const applyI18n = () => window.PunyaI18n?.apply(document);
+let lastOpsRows = [];
+let lastBookingRows = [];
 
 function accessFromProfile(profile) {
   const role = String(profile?.role || '').toLowerCase();
@@ -40,7 +44,7 @@ async function login(event) {
   try {
     await signInWithEmailAndPassword(auth, String(form.get('email')).trim(), String(form.get('password')));
   } catch (error) {
-    $('loginMessage').textContent = error.message || 'Login failed.';
+    $('loginMessage').textContent = error.message || tx('Login failed.');
   }
 }
 
@@ -57,7 +61,7 @@ async function loadDashboard() {
 
 function renderTabs() {
   const tabs = currentAccess.canManageAllData ? ['Ops View', 'Bookings'] : ['Ops View'];
-  $('tabs').innerHTML = tabs.map((tab, index) => `<button class="${index === 0 ? 'active' : ''}" data-tab="${tab}">${tab}</button>`).join('');
+  $('tabs').innerHTML = tabs.map((tab, index) => `<button class="${index === 0 ? 'active' : ''}" data-tab="${tab}">${tx(tab)}</button>`).join('');
   document.querySelectorAll('[data-tab]').forEach((button) => {
     button.addEventListener('click', () => {
       document.querySelectorAll('[data-tab]').forEach((item) => item.classList.remove('active'));
@@ -69,13 +73,14 @@ function renderTabs() {
 }
 
 function renderOps(rows) {
+  lastOpsRows = rows;
   $('opsView').innerHTML = rows.length ? rows.map((row) => `
     <article class="opsCard">
-      <h3>${row.devoteeName || 'Devotee'}</h3>
-      <p>Gotra: ${row.gotra || 'Not provided'}</p>
-      <button class="cardBtn" data-share-name="${row.devoteeName || 'Devotee'}" data-share-gotra="${row.gotra || 'Not provided'}">Forward Name & Gotra</button>
+      <h3>${row.devoteeName || tx('Devotee')}</h3>
+      <p>${tx('Gotra')}: ${row.gotra || tx('Not provided')}</p>
+      <button class="cardBtn" data-share-name="${row.devoteeName || tx('Devotee')}" data-share-gotra="${row.gotra || tx('Not provided')}">${tx('Forward Name & Gotra')}</button>
     </article>
-  `).join('') : '<p class="muted">No ops records found.</p>';
+  `).join('') : `<p class="muted">${tx('No ops records found.')}</p>`;
 
   document.querySelectorAll('[data-share-name]').forEach((button) => {
     button.addEventListener('click', async () => {
@@ -87,6 +92,7 @@ function renderOps(rows) {
 }
 
 function renderBookings(rows) {
+  lastBookingRows = rows;
   $('bookingsBody').innerHTML = rows.map((row) => `
     <tr>
       <td>${row.orderId || row.id}</td>
@@ -109,12 +115,20 @@ onAuthStateChanged(auth, async (user) => {
   const profileSnap = await getDoc(doc(db, 'users', user.uid));
   currentAccess = accessFromProfile(profileSnap.exists() ? profileSnap.data() : null);
   if (!currentAccess.canOpenAdmin) {
-    $('loginMessage').textContent = 'Access restricted for this account.';
+    $('loginMessage').textContent = tx('Access restricted for this account.');
     return;
   }
   $('loginForm').classList.add('hidden');
   $('dashboard').classList.remove('hidden');
-  $('roleLabel').textContent = currentAccess.canManageAllData ? 'Owner dashboard' : 'Ops only dashboard';
+  $('roleLabel').textContent = tx(currentAccess.canManageAllData ? 'Owner dashboard' : 'Ops only dashboard');
   renderTabs();
   await loadDashboard();
+});
+
+window.addEventListener('punyasutra:langchange', () => {
+  $('roleLabel').textContent = tx(currentAccess.canManageAllData ? 'Owner dashboard' : 'Ops only dashboard');
+  renderTabs();
+  renderOps(lastOpsRows);
+  renderBookings(lastBookingRows);
+  applyI18n();
 });
