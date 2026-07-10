@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://qorventech.github.io/BhaktiSetu/</loc><priority>1.0</priority></url>
-  <url><loc>https://qorventech.github.io/BhaktiSetu/how-it-works.html</loc><priority>0.8</priority></url>
-  <url><loc>https://qorventech.github.io/BhaktiSetu/about.html</loc><priority>0.8</priority></url>
-  <url><loc>https://qorventech.github.io/BhaktiSetu/track.html</loc><priority>0.7</priority></url>
-  <url><loc>https://qorventech.github.io/BhaktiSetu/auth.html</loc><priority>0.5</priority></url>
-  <url><loc>https://qorventech.github.io/BhaktiSetu/bookings.html</loc><priority>0.6</priority></url>
-  <url><loc>https://qorventech.github.io/BhaktiSetu/confirmation.html</loc><priority>0.4</priority></url>
+  <url><loc>https://punyasutra.com/</loc><priority>1.0</priority></url>
+  <url><loc>https://punyasutra.com/how-it-works.html</loc><priority>0.8</priority></url>
+  <url><loc>https://punyasutra.com/about.html</loc><priority>0.8</priority></url>
+  <url><loc>https://punyasutra.com/track.html</loc><priority>0.7</priority></url>
+  <url><loc>https://punyasutra.com/auth.html</loc><priority>0.5</priority></url>
+  <url><loc>https://punyasutra.com/bookings.html</loc><priority>0.6</priority></url>
+  <url><loc>https://punyasutra.com/confirmation.html</loc><priority>0.4</priority></url>
+  <url><loc>https://punyasutra.com/contact.html</loc><priority>0.6</priority></url>
+  <url><loc>https://punyasutra.com/privacy.html</loc><priority>0.5</priority></url>
+  <url><loc>https://punyasutra.com/terms.html</loc><priority>0.5</priority></url>
+  <url><loc>https://punyasutra.com/refund.html</loc><priority>0.5</priority></url>
 </urlset>

@@ -3,6 +3,7 @@ import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/fi
 import { addDoc, collection, doc, getDocs, getFirestore, initializeFirestore, query, setDoc } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';
 
 const RAZORPAY_KEY_ID = 'rzp_test_SymVGhugpvGj9D';
+const RAZORPAY_IS_TEST_MODE = RAZORPAY_KEY_ID.startsWith('rzp_test_');
 const DEFAULT_PUJA_TIME = '9:00 AM';
 const RATH_YATRA_DATE = new Date('2026-07-16T05:33:00+05:30');
 const RATH_YATRA_PUJA_IMAGE = './assets/pujas/rath-yatra-puja.jpg';
@@ -93,7 +94,7 @@ function pujaArt(title, subtitle, colors) {
         <g fill="#fff0b8"><path d="M320 518c0-46 34-70 34-70s34 24 34 70z"/><rect x="299" y="518" width="110" height="22" rx="11"/><path d="M812 518c0-46 34-70 34-70s34 24 34 70z"/><rect x="791" y="518" width="110" height="22" rx="11"/></g>
       </g>
       <rect x="0" y="0" width="1200" height="675" fill="#170b04" opacity=".18"/>
-      <text x="70" y="92" fill="#fff7df" font-family="Georgia, serif" font-size="42" font-weight="700">Pujan Sutra</text>
+      <text x="70" y="92" fill="#fff7df" font-family="Georgia, serif" font-size="42" font-weight="700">Punya Sutra</text>
       <text x="70" y="570" fill="#fff7df" font-family="Georgia, serif" font-size="58" font-weight="700">${safeText(title)}</text>
       <text x="72" y="622" fill="#ffd49a" font-family="Arial, sans-serif" font-size="28" font-weight="700">${safeText(subtitle)}</text>
     </svg>`;
@@ -227,7 +228,7 @@ function updateRathYatraCountdown() {
 }
 
 function renderPromo() {
-  const promo = { enabled: true, label: 'Rath Yatra Special', text: 'Book selected pujas with sankalp details and test checkout confirmation.' };
+  const promo = { enabled: true, label: 'Rath Yatra Special', text: 'Book selected pujas with sankalp details and checkout confirmation.' };
   if (!promo.enabled) return;
   $('promoStrip').classList.remove('hidden');
   $('promoStrip').innerHTML = `
@@ -318,8 +319,8 @@ function updateAuthUi(user) {
   $('accountLink').textContent = user ? 'Logout' : 'Login';
   $('accountLink').href = user ? '#' : './auth.html';
   $('authStateText').textContent = user
-    ? `Logged in as ${user.email}. Razorpay is running in TEST mode and will not charge real money.`
-    : 'Login with email or Google to continue. Razorpay is running in TEST mode and will not charge real money.';
+    ? `Logged in as ${user.email}. Online payments are being activated; your request will be saved for team follow-up.`
+    : 'Login with email or Google to continue. Online payments are being activated for public launch.';
   $('inlineAuth').classList.toggle('hidden', Boolean(user));
   const emailInput = document.querySelector('[name="email"]');
   if (user?.email && emailInput && !emailInput.value) emailInput.value = user.email;
@@ -334,6 +335,16 @@ function buildTrackingSteps(date) {
     { key: 'video_sent', label: 'Video Sent', status: 'pending', mode: 'manual', message: 'Video or confirmation will be sent when available.' },
     { key: 'prasad_delivery', label: 'Prasad Dispatched', status: 'pending', mode: 'manual', message: 'Delivery details will be updated after dispatch.' },
     { key: 'certificate_emailed', label: 'Certificate Emailed', status: 'pending', mode: 'manual', message: 'Certificate will be emailed after completion.' },
+  ];
+}
+
+function buildPendingTrackingSteps(date) {
+  return [
+    { key: 'booking_request_received', label: 'Request Received', status: 'done', mode: 'auto', message: 'Your booking request has been received.' },
+    { key: 'payment_pending', label: 'Payment Pending', status: 'pending', mode: 'manual', message: 'Online payment will be confirmed after checkout activation.' },
+    { key: 'puja_scheduled', label: 'Puja Scheduled', status: 'pending', mode: 'manual', message: `Team will confirm the puja schedule for ${date || 'your selected date'}.` },
+    { key: 'puja_completed', label: 'Puja Performed', status: 'pending', mode: 'manual', message: 'Team will update after puja completion.' },
+    { key: 'video_sent', label: 'Video Sent', status: 'pending', mode: 'manual', message: 'Video or confirmation will be sent when available.' },
   ];
 }
 
@@ -357,14 +368,20 @@ function openRazorpay(draft) {
   const amount = Number(selectedPuja.price || 0);
   const options = {
     key: RAZORPAY_KEY_ID,
-    amount: amount * 100,
+    amount: Math.round(amount * 100),
     currency: 'INR',
-    name: 'Pujan Sutra',
+    name: 'Punya Sutra',
     description: selectedPuja.name,
     image: '',
     prefill: { name: draft.name, email: draft.email, contact: draft.phone },
     notes: { internal_order_id: draft.orderId, puja_id: selectedPuja.id, gotra: draft.gotra },
     theme: { color: '#aa2109' },
+    config: {
+      display: {
+        sequence: ['upi', 'card', 'netbanking'],
+        preferences: { show_default_blocks: true },
+      },
+    },
     handler: async (response) => saveConfirmedBooking(draft, response),
     modal: { ondismiss: () => showPaymentRetry('Payment window closed. You can retry payment.') },
   };
@@ -390,7 +407,7 @@ async function saveConfirmedBooking(draft, paymentResponse = {}) {
     razorpayOrderId: paymentResponse.razorpay_order_id || '',
     razorpaySignature: paymentResponse.razorpay_signature || '',
     paymentId: paymentResponse.razorpay_payment_id || '',
-    paymentStatus: 'paid_test_mode',
+    paymentStatus: RAZORPAY_IS_TEST_MODE ? 'paid_test_mode' : 'paid',
     paymentGateway: 'razorpay_checkout_js',
     channel: 'website',
     userId: currentUser.uid,
@@ -431,6 +448,58 @@ async function saveConfirmedBooking(draft, paymentResponse = {}) {
   window.location.href = `./confirmation.html?orderId=${encodeURIComponent(draft.orderId)}`;
 }
 
+async function savePendingBookingRequest(draft) {
+  $('bookingMessage').classList.remove('error');
+  $('bookingMessage').textContent = 'Saving your booking request...';
+  const now = new Date().toISOString();
+  const amount = Number(selectedPuja.price || 0);
+  const payload = {
+    orderId: draft.orderId,
+    razorpayPaymentId: '',
+    razorpayOrderId: '',
+    razorpaySignature: '',
+    paymentId: '',
+    paymentStatus: 'payment_pending_live_activation',
+    paymentGateway: 'razorpay_checkout_js',
+    channel: 'website',
+    userId: currentUser.uid,
+    userEmail: draft.email || currentUser.email || '',
+    userName: draft.name,
+    userPhone: draft.phone,
+    adminPhone: '',
+    pujaId: selectedPuja.id,
+    pujaName: selectedPuja.name,
+    temple: selectedPuja.temple,
+    pujaImageUrl: imageForPuja(selectedPuja),
+    date: draft.date,
+    time: DEFAULT_PUJA_TIME,
+    pkg: 'Website Booking Request',
+    amount,
+    devotee: { name: draft.name, gotra: draft.gotra, phone: draft.phone, email: draft.email, purpose: draft.purpose },
+    status: 'Pending Payment',
+    trackingSteps: buildPendingTrackingSteps(draft.date),
+    notificationStatus: { inAppUser: true, inAppAdmin: true, whatsapp: 'pending_provider_setup', sms: 'pending_provider_setup' },
+    createdAt: now,
+    updatedAt: now,
+  };
+  await setDoc(doc(db, 'bookings', draft.orderId), payload);
+  await setDoc(doc(db, 'bookingOpsShares', draft.orderId), { devoteeName: draft.name, gotra: draft.gotra });
+  await Promise.all([
+    addDoc(collection(db, 'notifications'), {
+      audience: 'user', userId: currentUser.uid, orderId: draft.orderId, title: 'Puja booking request received',
+      message: `${selectedPuja.name} request has been received for ${draft.date || 'your selected date'}.`, unread: true,
+      pushStatus: 'pending', pushChannel: 'web', createdAt: now,
+    }),
+    addDoc(collection(db, 'adminNotifications'), {
+      audience: 'admin', orderId: draft.orderId, title: 'New website booking request',
+      message: `${selectedPuja.name} requested by ${draft.name}. Payment is pending live checkout activation.`, unread: true,
+      pushStatus: 'pending', pushChannel: 'web', createdAt: now,
+    }),
+  ]);
+  sessionStorage.setItem('lastConfirmedBooking', JSON.stringify(payload));
+  window.location.href = `./confirmation.html?orderId=${encodeURIComponent(draft.orderId)}`;
+}
+
 async function submitBooking(event) {
   event.preventDefault();
   $('bookingMessage').classList.remove('error');
@@ -448,6 +517,10 @@ async function submitBooking(event) {
     return;
   }
   lastBookingDraft = draft;
+  if (RAZORPAY_IS_TEST_MODE) {
+    await savePendingBookingRequest(draft);
+    return;
+  }
   openRazorpay(draft);
 }
 
