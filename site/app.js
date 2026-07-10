@@ -94,7 +94,7 @@ function pujaArt(title, subtitle, colors) {
         <g fill="#fff0b8"><path d="M320 518c0-46 34-70 34-70s34 24 34 70z"/><rect x="299" y="518" width="110" height="22" rx="11"/><path d="M812 518c0-46 34-70 34-70s34 24 34 70z"/><rect x="791" y="518" width="110" height="22" rx="11"/></g>
       </g>
       <rect x="0" y="0" width="1200" height="675" fill="#170b04" opacity=".18"/>
-      <text x="70" y="92" fill="#fff7df" font-family="Georgia, serif" font-size="42" font-weight="700">Punya Sutra</text>
+      <text x="70" y="92" fill="#fff7df" font-family="Georgia, serif" font-size="42" font-weight="700">PunyaSutra</text>
       <text x="70" y="570" fill="#fff7df" font-family="Georgia, serif" font-size="58" font-weight="700">${safeText(title)}</text>
       <text x="72" y="622" fill="#ffd49a" font-family="Arial, sans-serif" font-size="28" font-weight="700">${safeText(subtitle)}</text>
     </svg>`;
@@ -370,7 +370,7 @@ function openRazorpay(draft) {
     key: RAZORPAY_KEY_ID,
     amount: Math.round(amount * 100),
     currency: 'INR',
-    name: 'Punya Sutra',
+    name: 'PunyaSutra',
     description: selectedPuja.name,
     image: '',
     prefill: { name: draft.name, email: draft.email, contact: draft.phone },
