@@ -125,7 +125,7 @@ const fallbackPujas = [
   { id: '18', name: 'Sundarkand Path', temple: 'Ram Janmabhoomi, Ayodhya', price: 699, category: 'Health', deity: 'Hanuman', tag: 'Tuesday Special', duration: '90 mins', type: 'Vedic', description: 'Sundarkand Path for protection, peace, and wish fulfillment.' },
   { id: '19', name: 'Somnath Abhishek', temple: 'Somnath Temple, Gujarat', price: 1599, category: 'Health', deity: 'Shiva', tag: 'Jyotirlinga', duration: '90 mins', type: 'Vedic', description: 'Rudrabhishek at Somnath for longevity, health, and spiritual growth.' },
   { id: '20', name: 'Pushkar Brahma Puja', temple: 'Brahma Temple, Pushkar, Rajasthan', price: 1099, category: 'Wealth', deity: 'Brahma', tag: 'Rare & Unique', duration: '75 mins', type: 'Vedic', description: 'Brahma Puja for education, career growth, and new beginnings.' },
-  { id: '21', name: 'Rath Yatra Puja', temple: 'Jagannath Temple, Puri, Odisha', price: 1100, category: 'Wealth', deity: 'Jagannath', tag: 'Limited Time', duration: '75 mins', type: 'Vedic', imageUrl: RATH_YATRA_PUJA_IMAGE, description: 'Special Rath Yatra sankalp puja for devotion, blessings, family prosperity, and auspicious new beginnings.', bookingEnabled: true },
+  { id: '21', name: 'Rath Yatra Puja', temple: 'Jagannath Temple, Puri, Odisha', price: 1100, category: 'Wealth', deity: 'Jagannath', tag: 'Limited Time', duration: '75 mins', type: 'Vedic', imageUrl: RATH_YATRA_PUJA_IMAGE, description: 'Special Rath Yatra sankalp puja for devotion, blessings, family prosperity, and auspicious new beginnings.', bookingEnabled: false },
 ].map((puja) => ({
   ...puja,
   // The original 20 catalogue entries are placeholders until their pricing,
