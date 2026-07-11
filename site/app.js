@@ -125,14 +125,31 @@ const fallbackPujas = [
   { id: '18', name: 'Sundarkand Path', temple: 'Ram Janmabhoomi, Ayodhya', price: 699, category: 'Health', deity: 'Hanuman', tag: 'Tuesday Special', duration: '90 mins', type: 'Vedic', description: 'Sundarkand Path for protection, peace, and wish fulfillment.' },
   { id: '19', name: 'Somnath Abhishek', temple: 'Somnath Temple, Gujarat', price: 1599, category: 'Health', deity: 'Shiva', tag: 'Jyotirlinga', duration: '90 mins', type: 'Vedic', description: 'Rudrabhishek at Somnath for longevity, health, and spiritual growth.' },
   { id: '20', name: 'Pushkar Brahma Puja', temple: 'Brahma Temple, Pushkar, Rajasthan', price: 1099, category: 'Wealth', deity: 'Brahma', tag: 'Rare & Unique', duration: '75 mins', type: 'Vedic', description: 'Brahma Puja for education, career growth, and new beginnings.' },
-  { id: '21', name: 'Rath Yatra Puja', temple: 'Jagannath Temple, Puri, Odisha', price: 1100, category: 'Wealth', deity: 'Jagannath', tag: 'Limited Time', duration: '75 mins', type: 'Vedic', imageUrl: RATH_YATRA_PUJA_IMAGE, description: 'Special Rath Yatra sankalp puja for devotion, blessings, family prosperity, and auspicious new beginnings.' },
-];
+  { id: '21', name: 'Rath Yatra Puja', temple: 'Jagannath Temple, Puri, Odisha', price: 1100, category: 'Wealth', deity: 'Jagannath', tag: 'Limited Time', duration: '75 mins', type: 'Vedic', imageUrl: RATH_YATRA_PUJA_IMAGE, description: 'Special Rath Yatra sankalp puja for devotion, blessings, family prosperity, and auspicious new beginnings.', bookingEnabled: true },
+].map((puja) => ({
+  ...puja,
+  // The original 20 catalogue entries are placeholders until their pricing,
+  // temple details, and dates have been independently confirmed.
+  bookingEnabled: puja.bookingEnabled === true,
+  bookingStatusMessage: puja.bookingStatusMessage || 'Bookings opening soon',
+}));
+
+const placeholderPujaIds = new Set(fallbackPujas.filter((puja) => !puja.bookingEnabled).map((puja) => String(puja.id)));
+const placeholderPujaKeys = new Set(fallbackPujas.filter((puja) => !puja.bookingEnabled).map((puja) => slug(`${puja.name}-${puja.temple}`)));
+
+function placeholderFallbackFor(puja = {}) {
+  const id = String(puja.id || puja.pujaId || '');
+  if (placeholderPujaIds.has(id)) return fallbackPujas.find((item) => String(item.id) === id);
+  const key = slug(`${puja.name || ''}-${puja.temple || puja.location || ''}`);
+  return placeholderPujaKeys.has(key) ? fallbackPujas.find((item) => slug(`${item.name}-${item.temple}`) === key) : null;
+}
 
 let pujas = [];
 let selectedPuja = null;
 let activeFilter = 'all';
 let currentUser = null;
 let lastBookingDraft = null;
+let bookingAvailability = new Map();
 
 function artForPuja(puja = {}) {
   const text = `${puja.name || ''} ${puja.temple || ''} ${puja.deity || ''} ${puja.category || ''}`.toLowerCase();
@@ -175,6 +192,8 @@ function imageForPuja(puja) {
 
 function normalizePuja(row) {
   const price = Number(row.price || row.amount || 0) || 0;
+  const placeholderFallback = placeholderFallbackFor(row);
+  const bookingEnabled = row.bookingEnabled ?? (placeholderFallback ? placeholderFallback.bookingEnabled : true);
   const base = {
     ...row,
     id: String(row.id || row.pujaId || slug(row.name) || Date.now()),
@@ -185,6 +204,10 @@ function normalizePuja(row) {
     deity: row.deity || '',
     tag: row.tag || row.type || 'Verified',
     description: row.description || 'Verified puja with sankalp, pandit coordination, and digital confirmation.',
+    // New confirmed pujas remain bookable by default; an explicit false pauses
+    // that individual puja without hiding its catalogue card.
+    bookingEnabled,
+    bookingStatusMessage: row.bookingStatusMessage || 'Bookings opening soon',
   };
   return { ...base, fallbackImageUrl: localImageForPuja(base) || artForPuja(base), imageUrl: imageForPuja(base) };
 }
@@ -207,6 +230,12 @@ async function loadManagedPujas() {
     console.log('Using fallback pujas:', error.message);
     pujas = fallbackPujas.map(normalizePuja);
   }
+  try {
+    const snap = await getDocs(query(collection(db, 'pujaAvailability')));
+    bookingAvailability = new Map(snap.docs.map((item) => [String(item.id), item.data()]));
+  } catch (error) {
+    console.log('Using built-in puja availability:', error.message);
+  }
   selectedPuja = pujas[0] || normalizePuja(fallbackPujas[0]);
   renderCategories();
   renderPujas();
@@ -228,6 +257,20 @@ function updateRathYatraCountdown() {
   const minutes = Math.floor((diff / (1000 * 60)) % 60);
   const seconds = Math.floor((diff / 1000) % 60);
   countdown.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s left for Rath Yatra`;
+}
+
+function isBookingEnabled(puja = {}) {
+  const availability = bookingAvailability.get(String(puja.id));
+  if (availability?.bookingEnabled === false) return false;
+  if (availability?.bookingEnabled === true) return true;
+  // Resolve placeholder IDs/signatures first so passing a manipulated object
+  // to a handler cannot re-enable one of the 20 bundled placeholders.
+  const fallback = placeholderFallbackFor(puja);
+  return fallback ? fallback.bookingEnabled === true : puja.bookingEnabled !== false;
+}
+
+function bookingStatusMessage(puja = {}) {
+  return bookingAvailability.get(String(puja.id))?.bookingStatusMessage || puja.bookingStatusMessage || 'Bookings opening soon';
 }
 
 function renderPromo() {
@@ -293,7 +336,9 @@ function renderPujas(items = getVisiblePujas()) {
         <h3>${safeText(puja.name)}</h3>
         <p class="muted">${safeText(puja.temple)}</p>
         <p>${safeText(puja.description)}</p>
-        <button class="cardBtn" data-book="${safeText(puja.id)}">Book</button>
+        ${isBookingEnabled(puja)
+          ? `<button class="cardBtn" data-book="${safeText(puja.id)}">Book</button>`
+          : `<div class="availabilityLock"><span class="cardBtn comingSoonBtn" title="${safeText(bookingStatusMessage(puja))}" aria-label="Coming Soon">Coming Soon</span><small>${safeText(bookingStatusMessage(puja))}</small></div>`}
       </div>
     </article>
   `).join('') : '<p class="muted">No pujas found. Try another search.</p>';
@@ -313,11 +358,17 @@ function renderPujas(items = getVisiblePujas()) {
 }
 
 function updateSelectedPuja() {
+  const bookingEnabled = isBookingEnabled(selectedPuja);
   $('selectedPujaTitle').textContent = tx(selectedPuja.name);
   $('selectedPujaTemple').textContent = tx(selectedPuja.temple);
   $('selectedPujaPrice').textContent = `Rs ${Number(selectedPuja.price || 0).toLocaleString('en-IN')}`;
   $('selectedPujaImage').src = imageForPuja(selectedPuja);
   $('selectedPujaImage').onerror = () => { $('selectedPujaImage').src = selectedPuja.fallbackImageUrl || artForPuja(selectedPuja); };
+  $('payButton').disabled = !bookingEnabled;
+  $('payButton').textContent = bookingEnabled ? tx('Pay & Confirm Booking') : tx('Coming Soon');
+  $('payButton').classList.toggle('comingSoonBtn', !bookingEnabled);
+  $('bookingAvailabilityNote').textContent = bookingEnabled ? '' : tx(bookingStatusMessage(selectedPuja));
+  $('bookingAvailabilityNote').classList.toggle('hidden', bookingEnabled);
 }
 
 function updateAuthUi(user) {
@@ -366,6 +417,10 @@ function bookingFromForm(form) {
 }
 
 function openRazorpay(draft) {
+  if (!isBookingEnabled(selectedPuja)) {
+    showBookingUnavailable();
+    return;
+  }
   if (!window.Razorpay) {
     $('bookingMessage').textContent = tx('Razorpay could not load. Please refresh and try again.');
     $('retryButton').classList.remove('hidden');
@@ -388,7 +443,9 @@ function openRazorpay(draft) {
         preferences: { show_default_blocks: true },
       },
     },
-    handler: async (response) => saveConfirmedBooking(draft, response),
+    // The browser callback is informational only. A verified webhook is the
+    // sole authority that confirms payment in Firestore.
+    handler: () => showPaymentAwaitingWebhook(draft),
     modal: { ondismiss: () => showPaymentRetry(tx('Payment window closed. You can retry payment.')) },
   };
   const checkout = new window.Razorpay(options);
@@ -402,59 +459,17 @@ function showPaymentRetry(message) {
   $('retryButton').classList.remove('hidden');
 }
 
-async function saveConfirmedBooking(draft, paymentResponse = {}) {
+function showPaymentAwaitingWebhook(draft) {
   $('bookingMessage').classList.remove('error');
-  $('bookingMessage').textContent = tx('Payment successful. Saving confirmed booking...');
-  const now = new Date().toISOString();
-  const amount = Number(selectedPuja.price || 0);
-  const payload = {
-    orderId: draft.orderId,
-    razorpayPaymentId: paymentResponse.razorpay_payment_id || '',
-    razorpayOrderId: paymentResponse.razorpay_order_id || '',
-    razorpaySignature: paymentResponse.razorpay_signature || '',
-    paymentId: paymentResponse.razorpay_payment_id || '',
-    paymentStatus: RAZORPAY_IS_TEST_MODE ? 'paid_test_mode' : 'paid',
-    paymentGateway: 'razorpay_checkout_js',
-    channel: 'website',
-    userId: currentUser.uid,
-    userEmail: draft.email || currentUser.email || '',
-    userName: draft.name,
-    userPhone: draft.phone,
-    adminPhone: '',
-    pujaId: selectedPuja.id,
-    pujaName: selectedPuja.name,
-    temple: selectedPuja.temple,
-    pujaImageUrl: imageForPuja(selectedPuja),
-    date: draft.date,
-    time: DEFAULT_PUJA_TIME,
-    pkg: 'Website Booking',
-    amount,
-    devotee: { name: draft.name, gotra: draft.gotra, phone: draft.phone, email: draft.email, purpose: draft.purpose },
-    status: 'Confirmed',
-    trackingSteps: buildTrackingSteps(draft.date),
-    notificationStatus: { inAppUser: true, inAppAdmin: true, whatsapp: 'pending_provider_setup', sms: 'pending_provider_setup' },
-    createdAt: now,
-    updatedAt: now,
-  };
-  await setDoc(doc(db, 'bookings', draft.orderId), payload);
-  await setDoc(doc(db, 'bookingOpsShares', draft.orderId), { devoteeName: draft.name, gotra: draft.gotra });
-  await Promise.all([
-    addDoc(collection(db, 'notifications'), {
-      audience: 'user', userId: currentUser.uid, orderId: draft.orderId, title: 'Puja booking confirmed',
-      message: `${selectedPuja.name} is booked for ${draft.date || 'your selected date'} at ${DEFAULT_PUJA_TIME}.`, unread: true,
-      pushStatus: 'pending', pushChannel: 'web', createdAt: now,
-    }),
-    addDoc(collection(db, 'adminNotifications'), {
-      audience: 'admin', orderId: draft.orderId, title: 'New website booking received',
-      message: `${selectedPuja.name} booked by ${draft.name}. Amount: Rs ${amount}.`, unread: true,
-      pushStatus: 'pending', pushChannel: 'web', createdAt: now,
-    }),
-  ]);
-  sessionStorage.setItem('lastConfirmedBooking', JSON.stringify(payload));
-  window.location.href = `./confirmation.html?orderId=${encodeURIComponent(draft.orderId)}`;
+  $('bookingMessage').textContent = tx(`Payment received. We are confirming booking ${draft.orderId}. Check My Bookings shortly for the final status.`);
+  $('retryButton').classList.add('hidden');
 }
 
-async function savePendingBookingRequest(draft) {
+async function savePendingBookingRequest(draft, { redirect = true } = {}) {
+  if (!isBookingEnabled(selectedPuja)) {
+    showBookingUnavailable();
+    return;
+  }
   $('bookingMessage').classList.remove('error');
   $('bookingMessage').textContent = tx('Saving your booking request...');
   const now = new Date().toISOString();
@@ -489,27 +504,29 @@ async function savePendingBookingRequest(draft) {
     updatedAt: now,
   };
   await setDoc(doc(db, 'bookings', draft.orderId), payload);
-  await setDoc(doc(db, 'bookingOpsShares', draft.orderId), { devoteeName: draft.name, gotra: draft.gotra });
+  await setDoc(doc(db, 'bookingOpsShares', draft.orderId), { userId: currentUser.uid, devoteeName: draft.name, gotra: draft.gotra });
   await Promise.all([
     addDoc(collection(db, 'notifications'), {
       audience: 'user', userId: currentUser.uid, orderId: draft.orderId, title: 'Puja booking request received',
       message: `${selectedPuja.name} request has been received for ${draft.date || 'your selected date'}.`, unread: true,
       pushStatus: 'pending', pushChannel: 'web', createdAt: now,
     }),
-    addDoc(collection(db, 'adminNotifications'), {
-      audience: 'admin', orderId: draft.orderId, title: 'New website booking request',
-      message: `${selectedPuja.name} requested by ${draft.name}. Payment is pending live checkout activation.`, unread: true,
-      pushStatus: 'pending', pushChannel: 'web', createdAt: now,
-    }),
   ]);
-  sessionStorage.setItem('lastConfirmedBooking', JSON.stringify(payload));
-  window.location.href = `./confirmation.html?orderId=${encodeURIComponent(draft.orderId)}`;
+  if (redirect) {
+    sessionStorage.setItem('lastConfirmedBooking', JSON.stringify(payload));
+    window.location.href = `./confirmation.html?orderId=${encodeURIComponent(draft.orderId)}`;
+  }
+  return payload;
 }
 
 async function submitBooking(event) {
   event.preventDefault();
   $('bookingMessage').classList.remove('error');
   $('retryButton').classList.add('hidden');
+  if (!isBookingEnabled(selectedPuja)) {
+    showBookingUnavailable();
+    return;
+  }
   if (!currentUser) {
     $('bookingMessage').textContent = tx('Please login or signup first.');
     $('bookingMessage').classList.add('error');
@@ -527,7 +544,19 @@ async function submitBooking(event) {
     await savePendingBookingRequest(draft);
     return;
   }
-  openRazorpay(draft);
+  try {
+    await savePendingBookingRequest(draft, { redirect: false });
+    openRazorpay(draft);
+  } catch (error) {
+    $('bookingMessage').textContent = error.message || tx('Could not create the pending booking request.');
+    $('bookingMessage').classList.add('error');
+  }
+}
+
+function showBookingUnavailable() {
+  $('bookingMessage').textContent = tx(bookingStatusMessage(selectedPuja));
+  $('bookingMessage').classList.add('error');
+  $('retryButton').classList.add('hidden');
 }
 
 $('search').addEventListener('input', () => renderPujas());
