@@ -30,12 +30,14 @@ service cloud.firestore {
       return pujaId in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21'];
     }
 
-    // Missing availability records default new confirmed pujas to bookable,
-    // while the current placeholder IDs remain blocked server-side.
+    // Placeholder IDs require an explicit owner-approved availability record;
+    // new confirmed pujas remain bookable by default unless paused.
     function isBookingEnabled(pujaId) {
-      return !isKnownPlaceholderPuja(pujaId)
-        && (!exists(/databases/$(database)/documents/pujaAvailability/$(pujaId))
-        || get(/databases/$(database)/documents/pujaAvailability/$(pujaId)).data.get('bookingEnabled', true) == true);
+      return isKnownPlaceholderPuja(pujaId)
+        ? exists(/databases/$(database)/documents/pujaAvailability/$(pujaId))
+          && get(/databases/$(database)/documents/pujaAvailability/$(pujaId)).data.get('bookingEnabled', false) == true
+        : !exists(/databases/$(database)/documents/pujaAvailability/$(pujaId))
+          || get(/databases/$(database)/documents/pujaAvailability/$(pujaId)).data.get('bookingEnabled', true) == true;
     }
 
     function ownsBooking() {
