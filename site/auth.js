@@ -21,7 +21,16 @@ function setMode(nextMode) {
 }
 
 function goNext() {
-  window.location.href = next === 'book' ? './#book' : './bookings.html';
+  if (next === 'book') {
+    window.location.href = './#book';
+    return;
+  }
+  if (next === 'track') {
+    const orderId = params.get('orderId');
+    window.location.href = orderId ? `./track.html?orderId=${encodeURIComponent(orderId)}` : './track.html';
+    return;
+  }
+  window.location.href = './bookings.html';
 }
 
 async function saveUserProfile(user, extra = {}) {

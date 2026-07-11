@@ -1,0 +1,123 @@
+// REVIEW DRAFT — do not deploy until the owner confirms the access matrix.
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function currentRole() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'user')
+        : 'anonymous';
+    }
+
+    function isOwner() {
+      return currentRole() == 'owner';
+    }
+
+    function isOperationsMember() {
+      return currentRole() in ['operations', 'ops', 'priest', 'pandit', 'team'];
+    }
+
+    function isTeamMember() {
+      return isOwner() || isOperationsMember();
+    }
+
+    function isKnownPlaceholderPuja(pujaId) {
+      return pujaId in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21'];
+    }
+
+    // Missing availability records default new confirmed pujas to bookable,
+    // while the current placeholder IDs remain blocked server-side.
+    function isBookingEnabled(pujaId) {
+      return !isKnownPlaceholderPuja(pujaId)
+        && (!exists(/databases/$(database)/documents/pujaAvailability/$(pujaId))
+        || get(/databases/$(database)/documents/pujaAvailability/$(pujaId)).data.get('bookingEnabled', true) == true);
+    }
+
+    function ownsBooking() {
+      return signedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    function createsOwnBooking() {
+      return signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.pujaId is string
+        && request.resource.data.get('status', '') == 'Pending Payment'
+        && request.resource.data.get('paymentStatus', '') == 'payment_pending_live_activation'
+        && isBookingEnabled(request.resource.data.pujaId);
+    }
+
+    // A person can create and maintain only their own profile. They cannot
+    // assign or change roles; owner/team roles are set through Admin SDK or
+    // the Firebase console, which bypasses these client rules.
+    match /users/{userId} {
+      allow get: if signedIn() && (request.auth.uid == userId || isOwner());
+      allow list: if isOwner();
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.get('role', 'user') == 'user';
+      allow update: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.get('role', 'user') == resource.data.get('role', 'user');
+      allow delete: if false;
+    }
+
+    // Catalogue is intentionally public. Only the owner can alter it.
+    match /managedPujas/{pujaId} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    match /pujaAvailability/{pujaId} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    // Devotees can create/read their own pending booking request. Only the
+    // owner or a trusted server can confirm payment or update any booking.
+    match /bookings/{bookingId} {
+      allow create: if createsOwnBooking();
+      allow get, list: if ownsBooking() || isOwner();
+      allow update, delete: if isOwner();
+    }
+
+    // The operations dashboard deliberately receives only name and gotra.
+    // The website must include userId when it creates this companion record.
+    match /bookingOpsShares/{bookingId} {
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+      allow get, list: if isTeamMember();
+      allow update, delete: if isOwner();
+    }
+
+    // A devotee can see and create only their own in-app notification.
+    // Server/Admin SDK may create admin-facing notifications; browser clients
+    // cannot create or read them.
+    match /notifications/{notificationId} {
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.get('audience', 'user') == 'user';
+      allow get, list: if signedIn() && resource.data.userId == request.auth.uid;
+      allow update, delete: if isOwner();
+    }
+
+    match /adminNotifications/{notificationId} {
+      allow create: if false;
+      allow read, update, delete: if isOwner();
+    }
+
+    match /appSettings/{settingId} {
+      allow read, write: if isOwner();
+    }
+
+    // New collections are private by default until an explicit rule is added.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

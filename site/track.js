@@ -1,5 +1,6 @@
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js';
 import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';
-import { db } from './firebaseClient.js';
+import { auth, db } from './firebaseClient.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -8,6 +9,7 @@ const tx = (source) => window.PunyaI18n?.t(source) || source;
 const fmt = (source, values) => window.PunyaI18n?.format(source, values) || source.replace(/\{(\w+)\}/g, (match, key) => values?.[key] ?? match);
 const applyI18n = () => window.PunyaI18n?.apply(document);
 let lastBooking = null;
+let currentUser = null;
 const dateText = (value) => {
   if (!value) return '-';
   const date = value.toDate ? value.toDate() : new Date(value);
@@ -93,6 +95,11 @@ function renderTracking(booking) {
 }
 
 async function loadBooking(orderId) {
+  if (!currentUser) {
+    $('trackMessage').classList.add('error');
+    $('trackMessage').textContent = tx('Please login to track your booking.');
+    return;
+  }
   const cleanOrderId = String(orderId || '').trim();
   if (!cleanOrderId) {
     $('trackMessage').classList.add('error');
@@ -114,6 +121,11 @@ async function loadBooking(orderId) {
 
 $('trackForm').addEventListener('submit', (event) => {
   event.preventDefault();
+  if (!currentUser) {
+    $('trackMessage').classList.add('error');
+    $('trackMessage').textContent = tx('Please login to track your booking.');
+    return;
+  }
   const orderId = $('orderInput').value;
   history.replaceState(null, '', `./track.html?orderId=${encodeURIComponent(orderId)}`);
   loadBooking(orderId).catch((error) => {
@@ -123,13 +135,24 @@ $('trackForm').addEventListener('submit', (event) => {
 });
 
 const initialOrderId = params.get('orderId');
-if (initialOrderId) {
+
+onAuthStateChanged(auth, (user) => {
+  currentUser = user;
+  const submitButton = $('trackForm').querySelector('button[type="submit"]');
+  submitButton.disabled = !user;
+  if (!user) {
+    $('trackMessage').classList.add('error');
+    $('trackMessage').textContent = tx('Please login to track your booking.');
+    return;
+  }
+  $('trackMessage').classList.remove('error');
+  if (!initialOrderId) return;
   $('orderInput').value = initialOrderId;
   loadBooking(initialOrderId).catch((error) => {
     $('trackMessage').classList.add('error');
     $('trackMessage').textContent = error.message || tx('Could not load tracking details.');
   });
-}
+});
 
 window.addEventListener('punyasutra:langchange', () => {
   if (lastBooking) renderTracking(lastBooking);

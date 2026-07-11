@@ -1,5 +1,6 @@
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js';
 import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';
-import { db } from './firebaseClient.js';
+import { auth, db } from './firebaseClient.js';
 
 const $ = (id) => document.getElementById(id);
 const safeText = (value) => String(value || '').replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
@@ -7,6 +8,7 @@ const tx = (source) => window.PunyaI18n?.t(source) || source;
 const fmt = (source, values) => window.PunyaI18n?.format(source, values) || source.replace(/\{(\w+)\}/g, (match, key) => values?.[key] ?? match);
 const applyI18n = () => window.PunyaI18n?.apply(document);
 let lastBooking = null;
+let currentUser = null;
 const dateText = (value) => {
   if (!value) return '-';
   const date = value.toDate ? value.toDate() : new Date(value);
@@ -52,6 +54,10 @@ function render(booking) {
 }
 
 async function load() {
+  if (!currentUser) {
+    $('confirmMessage').textContent = tx('Please login to view this booking confirmation.');
+    return;
+  }
   const orderId = new URLSearchParams(location.search).get('orderId');
   let booking = null;
   if (orderId) {
@@ -59,7 +65,10 @@ async function load() {
     if (snap.exists()) booking = { id: snap.id, ...snap.data() };
   }
   if (!booking) {
-    try { booking = JSON.parse(sessionStorage.getItem('lastConfirmedBooking') || 'null'); } catch (error) { booking = null; }
+    try {
+      const cached = JSON.parse(sessionStorage.getItem('lastConfirmedBooking') || 'null');
+      booking = cached?.userId === currentUser.uid ? cached : null;
+    } catch (error) { booking = null; }
   }
   if (!booking) {
     $('confirmMessage').textContent = tx('Booking details were not found. Please check My Bookings.');
@@ -69,9 +78,17 @@ async function load() {
   render(booking);
 }
 
-load().catch((error) => {
-  $('confirmMessage').textContent = error.message || tx('Could not load confirmation.');
-  $('confirmMessage').classList.add('error');
+onAuthStateChanged(auth, (user) => {
+  currentUser = user;
+  if (!user) {
+    $('confirmMessage').textContent = tx('Please login to view this booking confirmation.');
+    $('confirmMessage').classList.add('error');
+    return;
+  }
+  load().catch((error) => {
+    $('confirmMessage').textContent = error.message || tx('Could not load confirmation.');
+    $('confirmMessage').classList.add('error');
+  });
 });
 
 window.addEventListener('punyasutra:langchange', () => {
