@@ -40,7 +40,14 @@ const bookingIdFromEvent = (event) => {
 };
 
 exports.razorpayWebhook = onRequest(
-  { region: 'asia-south1', secrets: [RAZORPAY_WEBHOOK_SECRET] },
+  {
+    region: 'asia-south1',
+    minInstances: 0,
+    maxInstances: 1,
+    memory: '256MiB',
+    timeoutSeconds: 20,
+    secrets: [RAZORPAY_WEBHOOK_SECRET],
+  },
   async (request, response) => {
     if (request.method !== 'POST') {
       response.set('Allow', 'POST').status(405).send('Method Not Allowed');
@@ -51,7 +58,7 @@ exports.razorpayWebhook = onRequest(
     const signature = request.get('x-razorpay-signature');
     if (!signatureIsValid(rawBody, signature, RAZORPAY_WEBHOOK_SECRET.value())) {
       logger.warn('Rejected Razorpay webhook with invalid signature');
-      response.status(400).send('Invalid signature');
+      response.status(401).send('Unauthorized');
       return;
     }
 
@@ -66,6 +73,13 @@ exports.razorpayWebhook = onRequest(
     const eventId = String(request.get('x-razorpay-event-id') || event.id || '').trim();
     const bookingId = bookingIdFromEvent(event);
     const eventName = String(event.event || 'unknown');
+
+    if (!['payment.captured', 'payment.failed'].includes(eventName)) {
+      logger.info('Ignoring unsupported Razorpay webhook event', { eventId, eventName });
+      response.status(200).send('Ignored');
+      return;
+    }
+
     if (!eventId || !bookingId) {
       logger.warn('Ignoring Razorpay webhook without event or internal booking ID', { eventName });
       response.status(200).send('Ignored');
@@ -87,15 +101,37 @@ exports.razorpayWebhook = onRequest(
         if (!booking.exists) throw new Error(`Unknown booking ${bookingId}`);
 
         const bookingData = booking.data();
-        if (bookingData.paymentStatus === 'paid' && eventName !== 'payment.captured') {
-          transaction.set(webhookRef, { eventName, bookingId, processedAt: now, outcome: 'ignored_after_payment_confirmation' });
-          return { duplicate: false, outcome: 'ignored_after_payment_confirmation' };
-        }
         const expectedAmount = Math.round(Number(bookingData.amount || 0) * 100);
         const actualAmount = Number(payment.amount || 0);
         const validAmount = expectedAmount > 0 && actualAmount === expectedAmount;
         const currency = String(payment.currency || '').toUpperCase();
         const paymentId = String(payment.id || '');
+
+        if (bookingData.paymentStatus === 'paid') {
+          transaction.set(webhookRef, {
+            eventName,
+            bookingId,
+            paymentId,
+            processedAt: now,
+            outcome: 'ignored_already_confirmed',
+          });
+          return { duplicate: false, outcome: 'ignored_already_confirmed' };
+        }
+
+        if (
+          eventName === 'payment.failed'
+          && bookingData.paymentStatus === 'failed'
+          && bookingData.razorpayPaymentId === paymentId
+        ) {
+          transaction.set(webhookRef, {
+            eventName,
+            bookingId,
+            paymentId,
+            processedAt: now,
+            outcome: 'ignored_duplicate_failure',
+          });
+          return { duplicate: false, outcome: 'ignored_duplicate_failure' };
+        }
 
         let patch;
         let notification;
@@ -129,13 +165,14 @@ exports.razorpayWebhook = onRequest(
           };
         } else if (eventName === 'payment.failed') {
           patch = {
-            status: 'Payment Failed',
+            status: 'Pending Payment',
             paymentStatus: 'failed',
             paymentGateway: 'razorpay_webhook',
             paymentId,
             razorpayPaymentId: paymentId,
             paymentFailureCode: String(payment.error_code || ''),
             paymentFailureDescription: String(payment.error_description || ''),
+            paymentFailedAt: now,
             updatedAt: now,
           };
         } else {
@@ -145,7 +182,7 @@ exports.razorpayWebhook = onRequest(
             paymentGateway: 'razorpay_webhook',
             paymentId,
             razorpayPaymentId: paymentId,
-            paymentReviewReason: eventName === 'payment.captured' ? 'Amount or currency mismatch' : `Unhandled webhook event: ${eventName}`,
+            paymentReviewReason: 'Amount or currency mismatch',
             updatedAt: now,
           };
           adminNotification = {
